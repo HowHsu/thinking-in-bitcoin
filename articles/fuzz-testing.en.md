@@ -134,6 +134,27 @@ the production `Linearize()` and a simple reference implementation
 FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -runs=50000
 ```
 
+libFuzzer offers two stopping conditions; they can be used individually or
+together (the fuzzer stops as soon as either is satisfied):
+
+| Flag | Meaning |
+|------|---------|
+| `-max_total_time=N` | Stop after **N seconds** |
+| `-runs=N` | Stop after **N executions** (`0` = unlimited) |
+
+```sh
+# Time-based limit (recommended): run for 5 minutes
+FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -max_total_time=300 my_corpus/clusterlin_linearize/
+
+# Execution-count limit
+FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -runs=100000 my_corpus/clusterlin_linearize/
+
+# Both at once (stops at whichever comes first)
+FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -max_total_time=120 -runs=500000 my_corpus/clusterlin_linearize/
+```
+
+Without either flag the fuzzer runs indefinitely until interrupted with Ctrl-C.
+
 libFuzzer prints a line each time it finds a new coverage-increasing input:
 
 ```
@@ -229,6 +250,8 @@ This helps CI catch regressions in the new paths you discovered.
 ---
 
 ## Further Reading
+
+- [Fuzz Script Guide](fuzz-script.en.md) — the automation script and config file that wrap all the steps above
 
 - [Bitcoin Core fuzzing documentation](https://github.com/bitcoin/bitcoin/blob/master/doc/fuzzing.md)
 - [libFuzzer documentation](https://llvm.org/docs/LibFuzzer.html)

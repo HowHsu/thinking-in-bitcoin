@@ -124,6 +124,26 @@ git clone --depth=1 https://github.com/bitcoin-core/qa-assets
 FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -runs=50000
 ```
 
+libFuzzer 提供两种停止条件，可单独使用也可同时设置（任一满足即停止）：
+
+| 参数 | 含义 |
+|------|------|
+| `-max_total_time=N` | 运行 **N 秒**后停止 |
+| `-runs=N` | 执行 **N 次输入**后停止（`0` = 无限制） |
+
+```sh
+# 按时间限制（推荐）：跑 5 分钟
+FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -max_total_time=300 my_corpus/clusterlin_linearize/
+
+# 按次数限制
+FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -runs=100000 my_corpus/clusterlin_linearize/
+
+# 同时限制（先到先停）
+FUZZ=clusterlin_linearize build_fuzz/bin/fuzz -max_total_time=120 -runs=500000 my_corpus/clusterlin_linearize/
+```
+
+不指定任何限制时，fuzzer 持续运行直到手动 Ctrl-C 中止。
+
 每次发现新的覆盖率提升输入时，libFuzzer 打印一行：
 
 ```
@@ -217,6 +237,8 @@ FUZZ=<目标名称> build_fuzz/bin/fuzz \
 ---
 
 ## 延伸阅读
+
+- [一键 fuzz 脚本使用指南](fuzz-script.zh.md)——封装本文所有步骤的自动化脚本及配置文件说明
 
 - [Bitcoin Core fuzzing 文档](https://github.com/bitcoin/bitcoin/blob/master/doc/fuzzing.md)
 - [libFuzzer 文档](https://llvm.org/docs/LibFuzzer.html)

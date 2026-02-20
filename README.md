@@ -6,3 +6,4 @@
 - [SPF 算法在链式 cluster 上的复杂度分析](articles/spf-chain-complexity.zh.md) · [EN](articles/spf-chain-complexity.en.md)
 - [链式 Cluster 的 O(N) 快速路径优化](articles/chain-cluster-optimization.zh.md) · [EN](articles/chain-cluster-optimization.en.md)
 - [Bitcoin Core Fuzz 测试实践指南](articles/fuzz-testing.zh.md) · [EN](articles/fuzz-testing.en.md)
+- [一键 Fuzz 脚本使用指南](articles/fuzz-script.zh.md) · [EN](articles/fuzz-script.en.md)
