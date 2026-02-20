@@ -1,5 +1,7 @@
 # SPF 算法在链式 cluster 上的复杂度分析
 
+[English](spf-chain-complexity.en.md)
+
 ## 背景
 
 Bitcoin Core 的 `Linearize()` 函数使用 Spanning Forest（SPF）算法对 cluster 进行线性化。
@@ -163,18 +165,4 @@ MakeTopological 级联合并的 O(N²) 确实存在，但每次迭代仅约 **21
 
 ## TryLinearizeChain 优化的效果
 
-`TryLinearizeChain` 在进入 SPF 之前检测链式拓扑（O(N) 判断祖先集大小是否恰为 {1,...,N}），若是则直接通过栈式合并 pass 得到最优线性化（O(N)），完全绕过 SPF 的所有阶段。
-
-无论费率分布如何——递增（级联合并，MakeTopological O(N²)）还是递减（N 个独立 chunk，但 GetLinearization 需 O(N log N) 排序）——`TryLinearizeChain` 均以 **O(N)** 且常数极小（约 128~197 ins/tx）完成。
-
-优化后实测数据（递增费率链）：
-
-| N | 总指令数 | 指令数/tx |
-|---|---------|---------|
-| 9 | 1,769 | 197 |
-| 16 | 2,546 | 159 |
-| 32 | 4,329 | 135 |
-| 48 | 6,266 | 131 |
-| 63 | 8,093 | 128 |
-
-指令数/tx 随 N 增大略有下降（常数收敛），印证了 O(N) 行为。与优化前相比，加速比约 **13x～25x**（N=9～63），且随 N 增大加速比持续增长（因为优化前趋向 O(N²) 而优化后保持 O(N)）。
+算法描述与 benchmark 数据详见[链式 Cluster 的 O(N) 快速路径优化](chain-cluster-optimization.zh.md)。

@@ -1,5 +1,7 @@
 # Complexity Analysis of the SPF Algorithm on Chain Clusters
 
+[中文版](spf-chain-complexity.zh.md)
+
 ## Background
 
 Bitcoin Core's `Linearize()` function uses the Spanning Forest (SPF) algorithm to linearize
@@ -195,25 +197,5 @@ the total appear nearly linear. The O(N²) term becomes the dominant factor arou
 
 ## Effect of the `TryLinearizeChain` Optimisation
 
-`TryLinearizeChain` detects the chain topology before entering SPF — O(N) check that
-ancestor-set sizes form exactly {1,...,N} — and, if so, produces the optimal linearisation
-directly via a stack-based merge pass (O(N)), bypassing all SPF phases entirely.
-
-Regardless of feerate distribution — increasing (O(N²) cascade in `MakeTopological`) or
-decreasing (N independent chunks, but O(N log N) sort in `GetLinearization`) —
-`TryLinearizeChain` always runs in **O(N)** with a tiny constant (~128–197 ins/tx).
-
-### Measured data after optimisation (increasing-feerate chain)
-
-| N | Total instructions | Instructions/tx |
-|---|-------------------|----------------|
-| 9 | 1,769 | 197 |
-| 16 | 2,546 | 159 |
-| 32 | 4,329 | 135 |
-| 48 | 6,266 | 131 |
-| 63 | 8,093 | 128 |
-
-Instructions per tx decrease slightly as N grows (the constant converges), confirming O(N)
-behaviour. Compared to the unoptimised baseline the speedup is **13×–25×** for N=9–63,
-and continues to grow with N since the baseline trends towards O(N²) while the optimised
-path remains O(N).
+See [O(N) Fast Path for Chain-Shaped Clusters](chain-cluster-optimization.en.md) for the
+algorithm description and benchmark results.
