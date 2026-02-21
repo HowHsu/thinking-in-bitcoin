@@ -72,21 +72,21 @@ size.
 
 | Size | Before (ns/op) | After (ns/op) | Speedup |
 |------|---------------|--------------|---------|
-| 9 tx | 973 | 85 | **12×** |
-| 16 tx | 1,772 | 126 | **14×** |
-| 32 tx | 3,880 | 237 | **16×** |
-| 48 tx | 6,205 | 341 | **18×** |
-| 63 tx | 8,551 | 443 | **19×** |
+| 9 tx | 973 | 48 | **20×** |
+| 16 tx | 1,772 | 72 | **25×** |
+| 32 tx | 3,880 | 129 | **30×** |
+| 48 tx | 6,205 | 185 | **34×** |
+| 63 tx | 8,551 | 238 | **36×** |
 
 Instructions per call after optimisation:
 
 | N | Total instructions | Instructions/tx |
 |---|-------------------|----------------|
-| 9 | 1,725 | 192 |
-| 16 | 2,502 | 156 |
-| 32 | 4,285 | 134 |
-| 48 | 6,222 | 130 |
-| 63 | 8,049 | 128 |
+| 9 | 954 | 106 |
+| 16 | 1,360 | 85 |
+| 32 | 2,295 | 72 |
+| 48 | 3,230 | 67 |
+| 63 | 4,100 | 65 |
 
 Instructions per tx decrease slightly as N grows (the constant converges), confirming O(N)
 behaviour. The speedup grows with N because the baseline trends towards O(N²) while the
