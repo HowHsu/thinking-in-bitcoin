@@ -29,12 +29,12 @@
 
 祖先数为 k 的节点唯一占据拓扑序的第 k−1 位。一次映射扫描即可 O(N) 恢复。
 
-### 最优分块（栈式正向合并 pass）
+### 为什么不需要 PostLinearize
 
-链式图中每对相邻交易都有依赖，"合并相邻违规者"算法永远不需要交换，只有合并。
-每笔交易入栈、出栈各至多一次，总工作量 O(N)。
-这等价于 `PostLinearize` 的一次正向 pass——对每笔交易最多只有一个父节点的图，
-`PostLinearize` 已被证明可产生最优结果（而链式图同时满足两个方向的树形条件）。
+链式 cluster 的拓扑序是唯一的，且每对相邻交易都有依赖，
+因此 `ChunkLinearization` 的无条件合并和 `PostLinearize` 的 merge/swap 行为完全一致
+（swap 分支永远不触发）。拓扑序本身就是最优的线性化结果，可以安全跳过 `PostLinearize`。
+详细原理见[为什么 SPF 之后需要 PostLinearize](why-postlinearize.zh.md)。
 
 ### 集成到 `Linearize()`
 

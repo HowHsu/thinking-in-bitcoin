@@ -35,13 +35,13 @@ A cluster with N transactions is a chain if and only if its ancestor-set sizes f
 The node with k ancestors occupies position k−1 in the unique topological order. Recovered
 in O(N) by a single mapping pass.
 
-### Optimal chunking (stack-based forward merge pass)
+### Why PostLinearize is not needed
 
-For a chain every consecutive pair has a dependency, so the standard "merge adjacent
-violators" algorithm never needs to swap — only merges occur. Each transaction is pushed onto
-and popped from the stack at most once, giving O(N) total work. This is equivalent to one
-forward pass of `PostLinearize`, which is already guaranteed optimal for graphs where every
-transaction has at most one parent (and a chain satisfies both tree-shape conditions).
+The topological order of a chain cluster is unique, and every adjacent pair has a dependency,
+so `ChunkLinearization`'s unconditional merge and `PostLinearize`'s merge/swap behave
+identically (the swap branch never triggers). The topological order itself is the optimal
+linearization, and `PostLinearize` can be safely skipped.
+See [Why PostLinearize Is Needed After SPF](why-postlinearize.en.md) for details.
 
 ### Integration into `Linearize()`
 
