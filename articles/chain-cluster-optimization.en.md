@@ -38,7 +38,7 @@ in O(N) by a single mapping pass.
 ### Why PostLinearize is not needed
 
 The topological order of a chain cluster is unique, and every adjacent pair has a dependency,
-so `ChunkLinearization`'s unconditional merge and `PostLinearize`'s merge/swap behave
+so `ChunkLinearizationInfo`'s unconditional merge and `PostLinearize`'s merge/swap behave
 identically (the swap branch never triggers). The topological order itself is the optimal
 linearization, and `PostLinearize` can be safely skipped.
 See [Why PostLinearize Is Needed After SPF](why-postlinearize.en.md) for details.

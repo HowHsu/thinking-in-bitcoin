@@ -9,19 +9,19 @@
 In Bitcoin Core's cluster linearization pipeline, `Linearize()` (the SPF algorithm) produces a
 linearization, after which `PostLinearize()` is called as a post-processing step. Why not use
 SPF's output directly? What goes wrong if we skip PostLinearize and compute chunks with
-`ChunkLinearization` on SPF's raw output?
+`ChunkLinearizationInfo` on SPF's raw output?
 
 ---
 
-## ChunkLinearization vs. PostLinearize
+## ChunkLinearizationInfo vs. PostLinearize
 
 Both use a forward-scan "merge adjacent violators" approach, but they handle the case where a
 high-feerate element needs to pass a low-feerate element very differently.
 
-### ChunkLinearization: unconditional merge
+### ChunkLinearizationInfo: unconditional merge
 
 ```cpp
-// cluster_linearize.h — ChunkLinearizationInfo
+// cluster_linearize.h — ChunkLinearizationInfoInfo
 while (!ret.empty() && new_chunk.feerate >> ret.back().feerate) {
     new_chunk |= ret.back();   // unconditional merge
     ret.pop_back();
@@ -29,7 +29,7 @@ while (!ret.empty() && new_chunk.feerate >> ret.back().feerate) {
 ```
 
 When a new transaction has higher feerate than the previous chunk, it **merges unconditionally**
-without checking whether the two are related by a dependency. `ChunkLinearization` is a pure
+without checking whether the two are related by a dependency. `ChunkLinearizationInfo` is a pure
 feerate computation tool — given a linearization, it computes the corresponding chunk
 decomposition. It does not modify the sequence and does not consult the dependency graph.
 
@@ -48,7 +48,7 @@ chunks.
 
 ---
 
-## How ChunkLinearization Can Produce Disconnected Chunks
+## How ChunkLinearizationInfo Can Produce Disconnected Chunks
 
 Consider this scenario:
 
@@ -62,7 +62,7 @@ Feerates: A = 1, B = 3, C = 10
 SPF's `GetLinearization` must place both A and B before C (topological constraint). Sorting by
 feerate, a possible output is: `[B, A, C]`.
 
-Applying `ChunkLinearization` to this sequence:
+Applying `ChunkLinearizationInfo` to this sequence:
 
 ```
 Process B: stack = [{B, fee=3}]
@@ -76,7 +76,7 @@ Process C: fee(C)=10 > fee(A)=1
 ```
 
 Result: one chunk `{B, A, C}`. Here B and A have no direct dependency — they were pulled into
-the same chunk by ChunkLinearization's unconditional merging. This particular example happens
+the same chunk by ChunkLinearizationInfo's unconditional merging. This particular example happens
 to remain connected (A and B are both connected to C), but in more complex topologies:
 
 ```
@@ -142,7 +142,7 @@ The problem arises in two steps:
 2. **PostLinearize needs to modify the sequence afterwards**, making SPF's chunk boundaries
    stale. In particular, when SPF terminates early (iteration budget exhausted), its internal
    chunk decomposition is suboptimal. `GetLinearization` arranges chunks by topology then
-   feerate, but because the chunk decomposition itself is imperfect, `ChunkLinearization`
+   feerate, but because the chunk decomposition itself is imperfect, `ChunkLinearizationInfo`
    applied to the output may produce different chunk boundaries than SPF had internally.
 
 SPF therefore outputs only the linearization sequence, delegating the connectivity guarantee
@@ -205,9 +205,9 @@ additional layer of deterministic sub-chunk optimisation that is independent of 
    ambiguity
 2. **Connectivity is inherent**: every adjacent pair in a chain has a dependency, so any
    contiguous subsequence is connected
-3. **ChunkLinearization equals PostLinearize**: there are no dependency-free adjacent pairs in
+3. **ChunkLinearizationInfo equals PostLinearize**: there are no dependency-free adjacent pairs in
    a chain, so PostLinearize's swap branch never triggers — its merge behaviour is identical
-   to ChunkLinearization
+   to ChunkLinearizationInfo
 
 ---
 

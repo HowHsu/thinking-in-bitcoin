@@ -32,7 +32,7 @@
 ### 为什么不需要 PostLinearize
 
 链式 cluster 的拓扑序是唯一的，且每对相邻交易都有依赖，
-因此 `ChunkLinearization` 的无条件合并和 `PostLinearize` 的 merge/swap 行为完全一致
+因此 `ChunkLinearizationInfo` 的无条件合并和 `PostLinearize` 的 merge/swap 行为完全一致
 （swap 分支永远不触发）。拓扑序本身就是最优的线性化结果，可以安全跳过 `PostLinearize`。
 详细原理见[为什么 SPF 之后需要 PostLinearize](why-postlinearize.zh.md)。
 

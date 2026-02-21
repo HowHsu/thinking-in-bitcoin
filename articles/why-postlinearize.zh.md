@@ -8,20 +8,20 @@
 
 Bitcoin Core 的 cluster linearization 流程中，`Linearize()`（SPF 算法）产出线性化序列后，
 还会调用 `PostLinearize()` 做后处理。为什么不直接使用 SPF 的输出？
-如果省略 PostLinearize，直接对 SPF 输出用 `ChunkLinearization` 计算 chunk，
+如果省略 PostLinearize，直接对 SPF 输出用 `ChunkLinearizationInfo` 计算 chunk，
 会出什么问题？
 
 ---
 
-## ChunkLinearization 与 PostLinearize 的区别
+## ChunkLinearizationInfo 与 PostLinearize 的区别
 
 两者都使用"合并相邻违规者"（merge adjacent violators）的前向扫描思路，
 但在遇到高费率元素需要越过低费率元素时，处理方式截然不同。
 
-### ChunkLinearization：无条件合并
+### ChunkLinearizationInfo：无条件合并
 
 ```cpp
-// cluster_linearize.h — ChunkLinearizationInfo
+// cluster_linearize.h — ChunkLinearizationInfoInfo
 while (!ret.empty() && new_chunk.feerate >> ret.back().feerate) {
     new_chunk |= ret.back();   // 无条件 merge
     ret.pop_back();
@@ -29,7 +29,7 @@ while (!ret.empty() && new_chunk.feerate >> ret.back().feerate) {
 ```
 
 当新交易的费率高于前一个 chunk 时，**直接合并**，不检查两者之间是否有依赖关系。
-`ChunkLinearization` 只是一个纯粹的费率计算工具——给定一个线性化序列，
+`ChunkLinearizationInfo` 只是一个纯粹的费率计算工具——给定一个线性化序列，
 计算其对应的 chunk 划分。它不修改序列，也不关心依赖图。
 
 ### PostLinearize：merge 或 swap
@@ -46,7 +46,7 @@ PostLinearize 检查依赖关系。对于无依赖的高费率交易，它选择
 
 ---
 
-## 为什么 ChunkLinearization 会产生不连通的 chunk
+## 为什么 ChunkLinearizationInfo 会产生不连通的 chunk
 
 考虑以下场景：
 
@@ -60,7 +60,7 @@ PostLinearize 检查依赖关系。对于无依赖的高费率交易，它选择
 SPF 的 `GetLinearization` 输出线性化序列时，A 和 B 都必须在 C 前面（拓扑约束），
 按费率排序后可能输出：`[B, A, C]`。
 
-对这个序列执行 `ChunkLinearization`：
+对这个序列执行 `ChunkLinearizationInfo`：
 
 ```
 处理 B: stack = [{B, fee=3}]
@@ -74,7 +74,7 @@ SPF 的 `GetLinearization` 输出线性化序列时，A 和 B 都必须在 C 前
 ```
 
 结果：一个 chunk `{B, A, C}`。但 **B 和 A 之间没有依赖关系**——
-它们只是因为各自依赖 C，被 ChunkLinearization 的无条件合并"拉"到了同一个 chunk 里。
+它们只是因为各自依赖 C，被 ChunkLinearizationInfo 的无条件合并"拉"到了同一个 chunk 里。
 这个 chunk 在依赖图中是连通的（A 和 B 通过 C 相连），所以这个例子碰巧没问题。
 
 但在更复杂的场景下：
@@ -142,7 +142,7 @@ SPF 内部的 chunk 是通过沿依赖边的 merge 操作构建的，**SPF 内�
 2. **后续需要 `PostLinearize` 修改序列**，SPF 内部的 chunk 划分不再适用。
    特别是 SPF 因迭代预算耗尽而提前终止时，输出的线性化可能不是最优的，
    `GetLinearization` 按拓扑序 + 费率排列 chunk，但由于 chunk 划分本身不够好，
-   输出序列经 `ChunkLinearization` 重新计算后可能产生与 SPF 内部不同的 chunk 边界。
+   输出序列经 `ChunkLinearizationInfo` 重新计算后可能产生与 SPF 内部不同的 chunk 边界。
 
 因此 SPF 选择只输出线性化序列，把连通性保证交给 PostLinearize——
 这是一个分层设计：SPF 专注费率图优化，PostLinearize 负责连通性修复。
@@ -195,8 +195,8 @@ SPF 报告 optimal 意味着费率图已经最优——chunk 的划分和顺序�
 1. **唯一的拓扑序**：链式 cluster 中每个交易的祖先集大小唯一（{1,...,N}），
    拓扑序完全确定，没有排序歧义
 2. **连通性天然满足**：链中每对相邻交易都有依赖，任何连续子序列都是连通的
-3. **ChunkLinearization 等价于 PostLinearize**：链中不存在无依赖的相邻交易对，
-   所以 PostLinearize 的 swap 分支永远不会触发，merge 行为与 ChunkLinearization 完全一致
+3. **ChunkLinearizationInfo 等价于 PostLinearize**：链中不存在无依赖的相邻交易对，
+   所以 PostLinearize 的 swap 分支永远不会触发，merge 行为与 ChunkLinearizationInfo 完全一致
 
 ---
 
