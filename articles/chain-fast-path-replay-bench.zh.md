@@ -7,7 +7,7 @@
 ## 动机
 
 合成 benchmark（如 `LinearizeOptimallyMonotoneChainTotal`）显示链式 cluster 上单次调用有
-20–36× 的加速，但 reviewer 可能会问：*这在实际运行中到底节省了多少时间？*
+20–36× 的加速，但读者可能会问：*这在实际运行中到底节省了多少时间？*
 
 本 benchmark 用真实 mainnet 数据回答两个问题：
 
@@ -108,6 +108,18 @@
 
 4. **对非链式 cluster 的额外开销可忽略。** `TryLinearizeChain` 仅做一次 O(N) 的祖先集
    大小扫描，对 3.8% 的非链式 cluster 立即返回空。这个开销远小于紧随其后的 SPF 初始化。
+
+---
+
+## 复现
+
+如需在自己的节点上复现这些结果：
+
+1. **采集**：将 [mempool cluster 数据 dump](https://github.com/HowHsu/bitcoin/commit/3f98387b123a6670deb569485b9863b6dd9e55ad) commit apply 到 `master` 上，编译并运行节点。cluster 数据将写入 `/tmp/mempool_clusters.txt`。
+2. **重放**：将[重放 benchmark](https://github.com/HowHsu/bitcoin/commit/443d5240bb913fca574277aca28fe6b944cdf018) commit apply 到 `chain_linearize` 分支上，编译并运行：
+   ```bash
+   ./build/src/bench/bench_bitcoin --filter='ReplayLinearize*'
+   ```
 
 ---
 

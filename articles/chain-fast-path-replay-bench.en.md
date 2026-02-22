@@ -7,7 +7,7 @@
 ## Motivation
 
 Synthetic benchmarks (e.g., `LinearizeOptimallyMonotoneChainTotal`) demonstrate per-call speedups
-of 20–36× on chain clusters, but a reviewer may ask: *how much does this matter in practice?*
+of 20–36× on chain clusters, but the reader may ask: *how much does this matter in practice?*
 
 This benchmark answers two questions with real mainnet data:
 
@@ -111,6 +111,18 @@ One full replay = processing all 115,370 clusters once.
 4. **Negligible overhead on non-chains.** `TryLinearizeChain` performs a single O(N) scan
    of ancestor-set sizes and returns empty immediately for the 3.8% of clusters that are not
    chains. The cost is dwarfed by the SPF setup that follows.
+
+---
+
+## Reproduce
+
+To reproduce these results on your own node:
+
+1. **Capture**: Apply the [mempool cluster data dump](https://github.com/HowHsu/bitcoin/commit/3f98387b123a6670deb569485b9863b6dd9e55ad) commit on top of `master`, build and run your node. Cluster data will be written to `/tmp/mempool_clusters.txt`.
+2. **Replay**: Apply the [replay benchmark](https://github.com/HowHsu/bitcoin/commit/443d5240bb913fca574277aca28fe6b944cdf018) commit on top of the `chain_linearize` branch, build and run:
+   ```bash
+   ./build/src/bench/bench_bitcoin --filter='ReplayLinearize*'
+   ```
 
 ---
 
