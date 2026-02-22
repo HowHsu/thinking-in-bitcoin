@@ -91,3 +91,6 @@ Instructions per call after optimisation:
 Instructions per tx decrease slightly as N grows (the constant converges), confirming O(N)
 behaviour. The speedup grows with N because the baseline trends towards O(N²) while the
 optimised path remains O(N).
+
+For aggregate results on real mainnet data, see
+[Replay Benchmark: TryLinearizeChain on Real Mempool Data](chain-fast-path-replay-bench.en.md).

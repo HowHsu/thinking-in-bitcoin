@@ -81,3 +81,6 @@ if (auto chain_lin = TryLinearizeChain(depgraph); !chain_lin.empty()) {
 
 每笔交易的指令数随 N 增大略有下降（常数收敛），印证了 O(N) 行为。
 加速比随 N 增大持续增长，因为优化前趋向 O(N²) 而优化后始终保持 O(N)。
+
+真实 mainnet 数据的整体重放结果详见
+[重放 Benchmark：TryLinearizeChain 在真实 Mempool 数据上的效果](chain-fast-path-replay-bench.zh.md)。
