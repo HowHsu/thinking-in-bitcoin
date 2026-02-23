@@ -12,3 +12,4 @@
 - [重放 Benchmark：TryLinearizeChain 在真实 Mempool 数据上的效果](articles/chain-fast-path-replay-bench.zh.md) · [EN](articles/chain-fast-path-replay-bench.en.md)
 - [一键 Fuzz 脚本使用指南](articles/fuzz-script.zh.md) · [EN](articles/fuzz-script.en.md)
 - [Relinearize 之外的 O(N²) 瓶颈：链式 Cluster 在 TxGraph 中的完整代价](articles/chain-beyond-relinearize.zh.md) · [EN](articles/chain-beyond-relinearize.en.md)
+- [2023 年全年 Mempool 实测：Cluster 大小与拓扑分布](articles/mempool-cluster-distribution-2023.zh.md) · [EN](articles/mempool-cluster-distribution-2023.en.md)
