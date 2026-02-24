@@ -28,9 +28,9 @@ Before each `Linearize()` call, the following inputs were serialized to
 |-------|-------------|
 | DepGraph (hex) | Cluster topology and feerates, serialized via `DepGraphFormatter` |
 | is_topological | Whether the old linearization is topologically valid |
-| max_iters | SPF iteration budget |
-| rng_seed | The RNG seed passed to SPF |
-| old_linearization | The existing linearization (SPF's starting point) |
+| max_iters | SFP iteration budget |
+| rng_seed | The RNG seed passed to SFP |
+| old_linearization | The existing linearization (SFP's starting point) |
 
 This captures everything `Linearize()` receives — enough for a faithful offline replay.
 
@@ -46,9 +46,9 @@ This captures everything `Linearize()` receives — enough for a faithful offlin
 
 Each captured cluster was replayed through two code paths:
 
-- **With fast path**: `Linearize()` → `TryLinearizeChain` hit → O(N) return; miss → SPF fallback.
-  `PostLinearize()` called only when SPF is used.
-- **Without fast path**: `LinearizeSPF()` + `PostLinearize()` on every cluster (forced SPF).
+- **With fast path**: `Linearize()` → `TryLinearizeChain` hit → O(N) return; miss → SFP fallback.
+  `PostLinearize()` called only when SFP is used.
+- **Without fast path**: `LinearizeSFP()` + `PostLinearize()` on every cluster (forced SFP).
 
 Both paths received the identical DepGraph, old linearization, and RNG seed.
 The only difference is whether `TryLinearizeChain` is tried first.
@@ -139,12 +139,12 @@ One full replay = processing all 115,370 clusters once.
 2. **16.9× aggregate speedup.** Total linearization time drops from ~247 ms to ~15 ms per
    replay of the full 115k-cluster workload.
 
-3. **14.6× instruction reduction.** The speedup is algorithmic (O(N) vs O(N²) in SPF's
+3. **14.6× instruction reduction.** The speedup is algorithmic (O(N) vs O(N²) in SFP's
    `MakeTopological`), not a cache or branch-prediction artefact.
 
 4. **Negligible overhead on non-chains.** `TryLinearizeChain` performs a single O(N) scan
    of ancestor-set sizes and returns empty immediately for the 3.8% of clusters that are not
-   chains. The cost is dwarfed by the SPF setup that follows.
+   chains. The cost is dwarfed by the SFP setup that follows.
 
 ---
 
@@ -167,4 +167,4 @@ To reproduce these results on your own node:
 ## Related Articles
 
 - [O(N) Fast Path for Chain-Shaped Clusters](chain-cluster-optimization.en.md)
-- [Complexity Analysis of the SPF Algorithm on Chain Clusters](spf-chain-complexity.en.md)
+- [Complexity Analysis of the SFP Algorithm on Chain Clusters](spf-chain-complexity.en.md)

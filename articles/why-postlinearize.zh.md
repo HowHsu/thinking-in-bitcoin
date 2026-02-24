@@ -1,4 +1,4 @@
-# 为什么 SPF 之后需要 PostLinearize
+# 为什么 SFP 之后需要 PostLinearize
 
 [English](why-postlinearize.en.md)
 
@@ -6,9 +6,9 @@
 
 ## 问题背景
 
-Bitcoin Core 的 cluster linearization 流程中，`Linearize()`（SPF 算法）产出线性化序列后，
-还会调用 `PostLinearize()` 做后处理。为什么不直接使用 SPF 的输出？
-如果省略 PostLinearize，直接对 SPF 输出用 `ChunkLinearizationInfo` 计算 chunk，
+Bitcoin Core 的 cluster linearization 流程中，`Linearize()`（SFP 算法）产出线性化序列后，
+还会调用 `PostLinearize()` 做后处理。为什么不直接使用 SFP 的输出？
+如果省略 PostLinearize，直接对 SFP 输出用 `ChunkLinearizationInfo` 计算 chunk，
 会出什么问题？
 
 ---
@@ -57,7 +57,7 @@ PostLinearize 检查依赖关系。对于无依赖的高费率交易，它选择
 费率：A = 1, B = 3, C = 10
 ```
 
-SPF 的 `GetLinearization` 输出线性化序列时，A 和 B 都必须在 C 前面（拓扑约束），
+SFP 的 `GetLinearization` 输出线性化序列时，A 和 B 都必须在 C 前面（拓扑约束），
 按费率排序后可能输出：`[B, A, C]`。
 
 对这个序列执行 `ChunkLinearizationInfo`：
@@ -83,7 +83,7 @@ SPF 的 `GetLinearization` 输出线性化序列时，A 和 B 都必须在 C 前
 依赖关系：A → D, B → C
 （两条独立的链，但在同一个 cluster 中通过其他边相连）
 
-SPF 非最优输出：[A, B, C, D]
+SFP 非最优输出：[A, B, C, D]
 
 费率：A = 1, B = 2, C = 3, D = 10
 ```
@@ -130,47 +130,47 @@ PostLinearize 的注释明确指出：
 
 ---
 
-## 为什么 SPF 不直接保证连通性
+## 为什么 SFP 不直接保证连通性
 
-SPF 内部的 chunk 是通过沿依赖边的 merge 操作构建的，**SPF 内部的 chunk 本身是连通的**。
+SFP 内部的 chunk 是通过沿依赖边的 merge 操作构建的，**SFP 内部的 chunk 本身是连通的**。
 
 问题出在两个环节：
 
 1. **`GetLinearization()` 输出的是交易序列**，不是 chunk 结构。
-   SPF 内部的 chunk 信息在输出时被丢弃了。
+   SFP 内部的 chunk 信息在输出时被丢弃了。
 
-2. **后续需要 `PostLinearize` 修改序列**，SPF 内部的 chunk 划分不再适用。
-   特别是 SPF 因迭代预算耗尽而提前终止时，输出的线性化可能不是最优的，
+2. **后续需要 `PostLinearize` 修改序列**，SFP 内部的 chunk 划分不再适用。
+   特别是 SFP 因迭代预算耗尽而提前终止时，输出的线性化可能不是最优的，
    `GetLinearization` 按拓扑序 + 费率排列 chunk，但由于 chunk 划分本身不够好，
-   输出序列经 `ChunkLinearizationInfo` 重新计算后可能产生与 SPF 内部不同的 chunk 边界。
+   输出序列经 `ChunkLinearizationInfo` 重新计算后可能产生与 SFP 内部不同的 chunk 边界。
 
-因此 SPF 选择只输出线性化序列，把连通性保证交给 PostLinearize——
-这是一个分层设计：SPF 专注费率图优化，PostLinearize 负责连通性修复。
+因此 SFP 选择只输出线性化序列，把连通性保证交给 PostLinearize——
+这是一个分层设计：SFP 专注费率图优化，PostLinearize 负责连通性修复。
 
 ---
 
 ## PostLinearize 的完整作用
 
-综合来看，PostLinearize 在 SPF 之后承担三个职责：
+综合来看，PostLinearize 在 SFP 之后承担三个职责：
 
 | 职责 | 说明 |
 |------|------|
 | **保证 chunk 连通** | 通过 swap（而非无条件 merge）确保每个 chunk 是连通子图 |
-| **改善非最优结果** | SPF 提前终止时，PostLinearize 可进一步改善线性化质量 |
-| **优化 chunk 内排序** | 即使 SPF 报告最优，PostLinearize 仍可改善 chunk 内部的交易顺序 |
+| **改善非最优结果** | SFP 提前终止时，PostLinearize 可进一步改善线性化质量 |
+| **优化 chunk 内排序** | 即使 SFP 报告最优，PostLinearize 仍可改善 chunk 内部的交易顺序 |
 
-当 SPF 报告 optimal 时，PostLinearize 不会改变 chunk 划分（费率图已最优），
+当 SFP 报告 optimal 时，PostLinearize 不会改变 chunk 划分（费率图已最优），
 只改善 sub-chunk order（chunk 内部排序）。
 
-### 即使 SPF 输出最优，sub-chunk 排序仍然重要
+### 即使 SFP 输出最优，sub-chunk 排序仍然重要
 
-SPF 报告 optimal 意味着费率图已经最优——chunk 的划分和顺序不可能更好了。
+SFP 报告 optimal 意味着费率图已经最优——chunk 的划分和顺序不可能更好了。
 但**同一个 chunk 内的交易排列顺序**并不影响费率图。例如一个 chunk `{A, B, C}`
 无论内部排列为 `[A, B, C]` 还是 `[B, A, C]`，chunk 的总费率不变，费率图也不变。
 
 然而 sub-chunk 排序在实际运行中有意义：
 
-1. **确定性**：SPF 内部使用随机数（`rng_seed`），同一个 cluster 不同的种子
+1. **确定性**：SFP 内部使用随机数（`rng_seed`），同一个 cluster 不同的种子
    可能产生不同的 chunk 内排序。PostLinearize 是完全确定性的，通过 merge/swap
    把随机化输出收敛到规范形式，减少不同节点之间的分歧。
 
@@ -183,7 +183,7 @@ SPF 报告 optimal 意味着费率图已经最优——chunk 的划分和顺序�
    提供了更好的起点。
 
 `GetLinearization` 本身也会在 chunk 内部按拓扑序 + 费率排序，但它使用的排序规则
-是 SPF 内部状态的产物。PostLinearize 提供了一层独立于 SPF 内部状态的、
+是 SFP 内部状态的产物。PostLinearize 提供了一层独立于 SFP 内部状态的、
 确定性的 sub-chunk 优化。
 
 ---

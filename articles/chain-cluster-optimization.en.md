@@ -6,10 +6,10 @@
 
 ## Background
 
-The SPF algorithm used by `Linearize()` exhibits **O(N²)** behaviour on chain-shaped clusters
+The SFP algorithm used by `Linearize()` exhibits **O(N²)** behaviour on chain-shaped clusters
 with strictly increasing feerates (see
-[Complexity Analysis of the SPF Algorithm on Chain Clusters](spf-chain-complexity.en.md)).
-This article describes `TryLinearizeChain`, the O(N) fast path that bypasses SPF entirely for
+[Complexity Analysis of the SFP Algorithm on Chain Clusters](spf-chain-complexity.en.md)).
+This article describes `TryLinearizeChain`, the O(N) fast path that bypasses SFP entirely for
 chain-shaped clusters, and presents measured benchmark results.
 
 Instrumentation added to a running node revealed that **virtually every cluster seen in the
@@ -41,11 +41,11 @@ The topological order of a chain cluster is unique, and every adjacent pair has 
 so `ChunkLinearizationInfo`'s unconditional merge and `PostLinearize`'s merge/swap behave
 identically (the swap branch never triggers). The topological order itself is the optimal
 linearization, and `PostLinearize` can be safely skipped.
-See [Why PostLinearize Is Needed After SPF](why-postlinearize.en.md) for details.
+See [Why PostLinearize Is Needed After SFP](why-postlinearize.en.md) for details.
 
 ### Integration into `Linearize()`
 
-`TryLinearizeChain` runs as an early exit inside `Linearize()`, before the SPF machinery is
+`TryLinearizeChain` runs as an early exit inside `Linearize()`, before the SFP machinery is
 initialised:
 
 ```cpp
@@ -53,7 +53,7 @@ initialised:
 if (auto chain_lin = TryLinearizeChain(depgraph); !chain_lin.empty()) {
     return {std::move(chain_lin), /*optimal=*/true, /*cost=*/0, /*is_chain=*/true};
 }
-// General path: SPF algorithm (LinearizeSPF).
+// General path: SFP algorithm (LinearizeSFP).
 ```
 
 The fourth return value (`is_chain`) signals to the caller (`Relinearize()`) that the result
@@ -64,7 +64,7 @@ is already optimal and connected — `PostLinearize()` can be skipped entirely.
 ## Benchmark: `LinearizeOptimallyMonotoneChainTotal`
 
 `MakeMonotoneChainGraph` builds a chain with fee_i = i+1, size_i = 1 — the worst-case
-feerate distribution for SPF. Without `TryLinearizeChain`, `MakeTopological` triggers an
+feerate distribution for SFP. Without `TryLinearizeChain`, `MakeTopological` triggers an
 O(N²) cascade of merges; with it the result is produced in O(N).
 
 Each benchmark op is one complete call to `Linearize()` for a chain cluster of the given

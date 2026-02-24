@@ -150,16 +150,16 @@ chain%
        1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
 ```
 
-- **First peak (size 4–7)**: chain% is 71–91%, peaking at size 6 (47.7M appearances). This
-  may correspond to standard **CPFP fee-bumping** patterns — a low-fee transaction with
-  several child transactions to boost the overall fee rate.
-- **Valley (size 8–14)**: chain% plummets to 14–27%. These clusters may originate from
-  **batch payments, Runes protocol operations, or multi-party protocols** that involve complex
-  fork/merge dependencies.
+- **First peak (size 4–7)**: chain% is 71–91%, peaking at size 6 (47.7M appearances).
+  (Claude Code speculation:) This may correspond to standard **CPFP fee-bumping** patterns —
+  a low-fee transaction with several child transactions to boost the overall fee rate.
+- **Valley (size 8–14)**: chain% plummets to 14–27%. (Claude Code speculation:) These clusters
+  may originate from **batch payments, Runes protocol operations, or multi-party protocols**
+  that involve complex fork/merge dependencies.
 - **Second peak (size 16–25)**: chain% climbs back to 82–99%, peaking at size 25
   (88.8M appearances, 99.5% chain). Long-chain clusters are almost entirely chain-shaped —
-  suggesting that **many services or protocols systematically build deep CPFP chains** close
-  to or at the 25-transaction limit.
+  (Claude Code speculation:) suggesting that **many services or protocols systematically
+  build deep CPFP chains** close to or at the 25-transaction limit.
 
 ### 3. Size 6 is the most frequent multi-transaction cluster
 

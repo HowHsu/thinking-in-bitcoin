@@ -183,7 +183,7 @@ The per-month chain% values are dominated by size-1 clusters (93% of all appeara
 stay uniformly high. The more interesting signal is the **variation in total cluster volume**:
 
 - **January–March 2023**: A quiet mempool, averaging ~5M cluster appearances per day.
-- **April–May 2023**: The **BRC-20 token** explosion. Cluster volume surges from 700M to
+- **April–May 2023**: (Claude Code speculation:) The **BRC-20 token** explosion. Cluster volume surges from 700M to
   1.87B per month. Non-chain clusters (complex dependency structures from inscription
   transactions) flood in, pushing chain% from 99% down to 93%.
 - **August 2023**: Peak volume for the year (6.4B cluster appearances), yet chain% rebounds
@@ -193,7 +193,7 @@ stay uniformly high. The more interesting signal is the **variation in total clu
 - **October 2023**: Mempool shrinks dramatically (368M — near January levels), but chain%
   is only 96.7%. The lower volume means fewer standalone transactions diluting the count,
   leaving a higher relative share of non-chain structures.
-- **November–December 2023**: A second congestion wave (sustained Ordinals activity +
+- **November–December 2023**: (Claude Code speculation:) A second congestion wave (sustained Ordinals activity +
   Runes anticipation). Cluster volume rises back to 2.7–3.1B, with chain% at 96–98%.
 
 ---

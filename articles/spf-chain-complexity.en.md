@@ -1,10 +1,10 @@
-# Complexity Analysis of the SPF Algorithm on Chain Clusters
+# Complexity Analysis of the SFP Algorithm on Chain Clusters
 
 [中文版](spf-chain-complexity.zh.md)
 
 ## Background
 
-Bitcoin Core's `Linearize()` function uses the Spanning Forest (SPF) algorithm to linearize
+Bitcoin Core's `Linearize()` function uses the Spanning Forest (SFP) algorithm to linearize
 transaction clusters. The algorithm proceeds through the following phases:
 
 ```
@@ -16,7 +16,7 @@ forest.StartMinimizing();
 while (forest.MinimizeStep()) {}
 ```
 
-This article analyses the per-phase complexity of SPF on a **chain cluster**
+This article analyses the per-phase complexity of SFP on a **chain cluster**
 (tx_0 → tx_1 → ... → tx_{N-1}) under two extreme feerate distributions:
 
 - **Increasing feerates**: fee_i = i+1 (fee_0=1, fee_1=2, ..., fee_{N-1}=N)

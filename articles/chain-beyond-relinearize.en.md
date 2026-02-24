@@ -52,7 +52,7 @@ ApplyDependencies(level)
 Relinearize()
   → Linearize()
     → TryLinearizeChain             O(N) for chains  ✓ optimized
-    → or SPF fallback               O(N²) for non-chains
+    → or SFP fallback               O(N²) for non-chains
   → PostLinearize()                 skipped for chains  ✓ optimized
   → Updated()                      O(N)
 ```
@@ -239,10 +239,10 @@ For a chain cluster of size N, using BitSet<64> (where each BitSet operation is 
 |-----------|:-:|:-:|:-:|
 | Split (GetReducedParents + AddDeps) | ~N² | ~1 cycle (BitSet OR) | ~50 ns |
 | Merge (AddDependencies per tx) | ~N² | ~1 cycle (BitSet OR) | ~50 ns |
-| SPF MakeTopological (without TryLinearizeChain) | ~N² | ~30 cycles (FeeFrac compare + swap) | ~2100 ns |
+| SFP MakeTopological (without TryLinearizeChain) | ~N² | ~30 cycles (FeeFrac compare + swap) | ~2100 ns |
 | TryLinearizeChain | ~N | ~3 cycles (popcount) | ~10 ns |
 
-At N=11 (the average chain cluster size observed in real mempool data), the SPF O(N²) in
+At N=11 (the average chain cluster size observed in real mempool data), the SFP O(N²) in
 `Relinearize()` dominates — roughly 35–100× more expensive per iteration than the BitSet-based
 O(N²) in Split/Merge. This is why `TryLinearizeChain` delivers a measurable 16.9× aggregate
 speedup in replay benchmarks despite not addressing the other O(N²) operations.
@@ -253,7 +253,7 @@ However, this balance shifts as N grows. At N=25 (the largest common chain size)
 |-----------|:--------------------:|
 | Split (GetReducedParents + AddDeps) | ~250 ns |
 | Merge (AddDependencies per tx) | ~250 ns |
-| SPF MakeTopological | ~18,750 ns |
+| SFP MakeTopological | ~18,750 ns |
 | TryLinearizeChain | ~25 ns |
 
 The non-Relinearize O(N²) grows quadratically with N. If `MAX_CLUSTER_COUNT` were increased
@@ -313,5 +313,5 @@ pattern singletons use when they first receive a dependency.
 ## Related Articles
 
 - [O(N) Fast Path for Chain-Shaped Clusters](chain-cluster-optimization.en.md)
-- [Complexity Analysis of the SPF Algorithm on Chain Clusters](spf-chain-complexity.en.md)
+- [Complexity Analysis of the SFP Algorithm on Chain Clusters](spf-chain-complexity.en.md)
 - [Replay Benchmark: TryLinearizeChain on Real Mempool Data](chain-fast-path-replay-bench.en.md)

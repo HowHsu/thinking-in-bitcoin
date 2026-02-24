@@ -28,9 +28,9 @@
 |------|------|
 | DepGraph (hex) | Cluster 拓扑和费率，通过 `DepGraphFormatter` 序列化 |
 | is_topological | 旧线性化是否拓扑有效 |
-| max_iters | SPF 迭代预算 |
-| rng_seed | 传给 SPF 的随机数种子 |
-| old_linearization | 现有线性化序列（SPF 的起点） |
+| max_iters | SFP 迭代预算 |
+| rng_seed | 传给 SFP 的随机数种子 |
+| old_linearization | 现有线性化序列（SFP 的起点） |
 
 这完整捕获了 `Linearize()` 收到的所有输入，足以离线忠实重放。
 
@@ -46,9 +46,9 @@
 
 对每个采集到的 cluster，分别走两条代码路径：
 
-- **有快速路径**：`Linearize()` → `TryLinearizeChain` 命中则 O(N) 返回；未命中则走 SPF。
-  仅在走 SPF 时调用 `PostLinearize()`。
-- **无快速路径**：对所有 cluster 强制走 `LinearizeSPF()` + `PostLinearize()`。
+- **有快速路径**：`Linearize()` → `TryLinearizeChain` 命中则 O(N) 返回；未命中则走 SFP。
+  仅在走 SFP 时调用 `PostLinearize()`。
+- **无快速路径**：对所有 cluster 强制走 `LinearizeSFP()` + `PostLinearize()`。
 
 两条路径收到完全相同的 DepGraph、旧线性化和 RNG 种子，唯一区别是是否先尝试
 `TryLinearizeChain`。`fallback_order` 统一用 `IndexTxOrder`（按 index 比较），
@@ -136,11 +136,11 @@
 
 2. **整体加速 16.9×。** 完整重放 115k cluster 的总线性化时间从 ~247 ms 降至 ~15 ms。
 
-3. **指令数减少 14.6×。** 加速来自算法层面（O(N) vs SPF `MakeTopological` 的 O(N²)），
+3. **指令数减少 14.6×。** 加速来自算法层面（O(N) vs SFP `MakeTopological` 的 O(N²)），
    而非缓存或分支预测效应。
 
 4. **对非链式 cluster 的额外开销可忽略。** `TryLinearizeChain` 仅做一次 O(N) 的祖先集
-   大小扫描，对 3.8% 的非链式 cluster 立即返回空。这个开销远小于紧随其后的 SPF 初始化。
+   大小扫描，对 3.8% 的非链式 cluster 立即返回空。这个开销远小于紧随其后的 SFP 初始化。
 
 ---
 
@@ -163,4 +163,4 @@
 ## 相关文章
 
 - [链式 Cluster 的 O(N) 快速路径优化](chain-cluster-optimization.zh.md)
-- [SPF 算法在链式 cluster 上的复杂度分析](spf-chain-complexity.zh.md)
+- [SFP 算法在链式 cluster 上的复杂度分析](spf-chain-complexity.zh.md)

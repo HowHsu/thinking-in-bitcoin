@@ -49,7 +49,7 @@ ApplyDependencies(level)
 Relinearize()
   → Linearize()
     → TryLinearizeChain             链式 O(N)    ✓ 已优化
-    → 或 SPF 回退                    非链式 O(N²)
+    → 或 SFP 回退                    非链式 O(N²)
   → PostLinearize()                 链式跳过      ✓ 已优化
   → Updated()                      O(N)
 ```
@@ -230,10 +230,10 @@ O(N²) 操作未受影响。
 |------|:---:|:---:|:---:|
 | Split (GetReducedParents + AddDeps) | ~N² | ~1 cycle (BitSet OR) | ~50 ns |
 | Merge (AddDependencies per tx) | ~N² | ~1 cycle (BitSet OR) | ~50 ns |
-| SPF MakeTopological（无 TryLinearizeChain） | ~N² | ~30 cycles（FeeFrac 比较 + 交换） | ~2100 ns |
+| SFP MakeTopological（无 TryLinearizeChain） | ~N² | ~30 cycles（FeeFrac 比较 + 交换） | ~2100 ns |
 | TryLinearizeChain | ~N | ~3 cycles (popcount) | ~10 ns |
 
-在 N=11（真实 mempool 数据中观察到的平均链式 cluster 大小）时，`Relinearize()` 中 SPF 的
+在 N=11（真实 mempool 数据中观察到的平均链式 cluster 大小）时，`Relinearize()` 中 SFP 的
 O(N²) 占主导地位——每次迭代比 Split/Merge 中基于 BitSet 的 O(N²) 贵约 35–100 倍。这就是
 `TryLinearizeChain` 在重放 benchmark 中能带来 16.9× 整体加速的原因。
 
@@ -243,7 +243,7 @@ O(N²) 占主导地位——每次迭代比 Split/Merge 中基于 BitSet 的 O(N
 |------|:---:|
 | Split (GetReducedParents + AddDeps) | ~250 ns |
 | Merge (AddDependencies per tx) | ~250 ns |
-| SPF MakeTopological | ~18,750 ns |
+| SFP MakeTopological | ~18,750 ns |
 | TryLinearizeChain | ~25 ns |
 
 非 Relinearize 的 O(N²) 随 N 二次增长。如果 `MAX_CLUSTER_COUNT` 增大到超过 64（需要
@@ -296,5 +296,5 @@ cluster 收到破坏链式拓扑的依赖（产生分叉或菱形）时，将其
 ## 相关文章
 
 - [链式 Cluster 的 O(N) 快速路径优化](chain-cluster-optimization.zh.md)
-- [SPF 算法在链式 Cluster 上的复杂度分析](spf-chain-complexity.zh.md)
+- [SFP 算法在链式 Cluster 上的复杂度分析](spf-chain-complexity.zh.md)
 - [重放 Benchmark：TryLinearizeChain 在真实 Mempool 数据上的效果](chain-fast-path-replay-bench.zh.md)

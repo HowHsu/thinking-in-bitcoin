@@ -1,11 +1,11 @@
-# SPF 算法在链式 cluster 上的复杂度分析
+# SFP 算法在链式 cluster 上的复杂度分析
 
 [English](spf-chain-complexity.en.md)
 
 ## 背景
 
-Bitcoin Core 的 `Linearize()` 函数使用 Spanning Forest（SPF）算法对 cluster 进行线性化。
-SPF 算法由以下几个阶段组成：
+Bitcoin Core 的 `Linearize()` 函数使用 Spanning Forest（SFP）算法对 cluster 进行线性化。
+SFP 算法由以下几个阶段组成：
 
 ```
 SpanningForestState forest(depgraph, rng_seed);
@@ -16,7 +16,7 @@ forest.StartMinimizing();
 while (forest.MinimizeStep()) {}
 ```
 
-本文分析 SPF 在**链式 cluster**（tx_0 → tx_1 → ... → tx_{N-1}）上，针对两种极端费率分布的各阶段复杂度：
+本文分析 SFP 在**链式 cluster**（tx_0 → tx_1 → ... → tx_{N-1}）上，针对两种极端费率分布的各阶段复杂度：
 
 - **递增费率**：fee_i = i+1（fee_0=1, fee_1=2, ..., fee_{N-1}=N）
 - **递减费率**：fee_i = N-i（fee_0=N, fee_1=N-1, ..., fee_{N-1}=1）

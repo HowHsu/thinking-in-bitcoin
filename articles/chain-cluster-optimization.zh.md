@@ -6,9 +6,9 @@
 
 ## 背景
 
-`Linearize()` 使用的 SPF 算法在严格递增费率的链式 cluster 上会产生 **O(N²)** 的复杂度
-（详见[SPF 算法在链式 cluster 上的复杂度分析](spf-chain-complexity.zh.md)）。
-本文介绍 `TryLinearizeChain` 优化——对链式 cluster 完全绕过 SPF，直接以 O(N) 得到最优线性化，
+`Linearize()` 使用的 SFP 算法在严格递增费率的链式 cluster 上会产生 **O(N²)** 的复杂度
+（详见[SFP 算法在链式 cluster 上的复杂度分析](spf-chain-complexity.zh.md)）。
+本文介绍 `TryLinearizeChain` 优化——对链式 cluster 完全绕过 SFP，直接以 O(N) 得到最优线性化，
 并给出实测 benchmark 数据。
 
 节点插桩观测发现，**mempool 中几乎所有 cluster 都是链式的**——每笔交易花费前一笔的输出。
@@ -34,18 +34,18 @@
 链式 cluster 的拓扑序是唯一的，且每对相邻交易都有依赖，
 因此 `ChunkLinearizationInfo` 的无条件合并和 `PostLinearize` 的 merge/swap 行为完全一致
 （swap 分支永远不触发）。拓扑序本身就是最优的线性化结果，可以安全跳过 `PostLinearize`。
-详细原理见[为什么 SPF 之后需要 PostLinearize](why-postlinearize.zh.md)。
+详细原理见[为什么 SFP 之后需要 PostLinearize](why-postlinearize.zh.md)。
 
 ### 集成到 `Linearize()`
 
-`TryLinearizeChain` 作为 `Linearize()` 的早退出，在 SPF 初始化前执行：
+`TryLinearizeChain` 作为 `Linearize()` 的早退出，在 SFP 初始化前执行：
 
 ```cpp
 // 在 Linearize() 中：
 if (auto chain_lin = TryLinearizeChain(depgraph); !chain_lin.empty()) {
     return {std::move(chain_lin), /*optimal=*/true, /*cost=*/0, /*is_chain=*/true};
 }
-// 通用路径：SPF 算法（LinearizeSPF）
+// 通用路径：SFP 算法（LinearizeSFP）
 ```
 
 第四个返回值 `is_chain` 通知调用方（`Relinearize()`）结果已经最优且连通，
@@ -56,7 +56,7 @@ if (auto chain_lin = TryLinearizeChain(depgraph); !chain_lin.empty()) {
 ## Benchmark：`LinearizeOptimallyMonotoneChainTotal`
 
 `MakeMonotoneChainGraph` 构造费率 fee_i = i+1、大小 size_i = 1 的链式图——
-这是 SPF 算法的最坏费率分布。不做优化时 `MakeTopological` 会触发 O(N²) 级联合并；
+这是 SFP 算法的最坏费率分布。不做优化时 `MakeTopological` 会触发 O(N²) 级联合并；
 有了 `TryLinearizeChain` 则 O(N) 直接得出结果。
 
 每个 benchmark op 是对给定规模链式 cluster 调用一次 `Linearize()` 的完整耗时。

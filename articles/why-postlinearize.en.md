@@ -1,4 +1,4 @@
-# Why PostLinearize Is Needed After SPF
+# Why PostLinearize Is Needed After SFP
 
 [中文版](why-postlinearize.zh.md)
 
@@ -6,10 +6,10 @@
 
 ## The Question
 
-In Bitcoin Core's cluster linearization pipeline, `Linearize()` (the SPF algorithm) produces a
+In Bitcoin Core's cluster linearization pipeline, `Linearize()` (the SFP algorithm) produces a
 linearization, after which `PostLinearize()` is called as a post-processing step. Why not use
-SPF's output directly? What goes wrong if we skip PostLinearize and compute chunks with
-`ChunkLinearizationInfo` on SPF's raw output?
+SFP's output directly? What goes wrong if we skip PostLinearize and compute chunks with
+`ChunkLinearizationInfo` on SFP's raw output?
 
 ---
 
@@ -59,7 +59,7 @@ Dependencies: A → C, B → C
 Feerates: A = 1, B = 3, C = 10
 ```
 
-SPF's `GetLinearization` must place both A and B before C (topological constraint). Sorting by
+SFP's `GetLinearization` must place both A and B before C (topological constraint). Sorting by
 feerate, a possible output is: `[B, A, C]`.
 
 Applying `ChunkLinearizationInfo` to this sequence:
@@ -83,7 +83,7 @@ to remain connected (A and B are both connected to C), but in more complex topol
 Dependencies: A → D, B → C
 (Two independent dependency chains within the same cluster)
 
-SPF non-optimal output: [A, B, C, D]
+SFP non-optimal output: [A, B, C, D]
 
 Feerates: A = 1, B = 2, C = 3, D = 10
 ```
@@ -131,43 +131,43 @@ PostLinearize's source comments state explicitly:
 
 ---
 
-## Why SPF Doesn't Guarantee Connectivity Directly
+## Why SFP Doesn't Guarantee Connectivity Directly
 
-SPF's internal chunks **are** connected — they are built by merging along dependency edges.
+SFP's internal chunks **are** connected — they are built by merging along dependency edges.
 The problem arises in two steps:
 
 1. **`GetLinearization()` outputs a transaction sequence**, not the chunk structure.
-   SPF's internal chunk information is discarded at output time.
+   SFP's internal chunk information is discarded at output time.
 
-2. **PostLinearize needs to modify the sequence afterwards**, making SPF's chunk boundaries
-   stale. In particular, when SPF terminates early (iteration budget exhausted), its internal
+2. **PostLinearize needs to modify the sequence afterwards**, making SFP's chunk boundaries
+   stale. In particular, when SFP terminates early (iteration budget exhausted), its internal
    chunk decomposition is suboptimal. `GetLinearization` arranges chunks by topology then
    feerate, but because the chunk decomposition itself is imperfect, `ChunkLinearizationInfo`
-   applied to the output may produce different chunk boundaries than SPF had internally.
+   applied to the output may produce different chunk boundaries than SFP had internally.
 
-SPF therefore outputs only the linearization sequence, delegating the connectivity guarantee
-to PostLinearize — a layered design where SPF focuses on feerate-diagram optimisation and
+SFP therefore outputs only the linearization sequence, delegating the connectivity guarantee
+to PostLinearize — a layered design where SFP focuses on feerate-diagram optimisation and
 PostLinearize handles structural repair.
 
 ---
 
 ## The Full Role of PostLinearize
 
-In summary, PostLinearize serves three purposes after SPF:
+In summary, PostLinearize serves three purposes after SFP:
 
 | Purpose | Description |
 |---------|-------------|
 | **Guarantee chunk connectivity** | Uses swap (not unconditional merge) to ensure every chunk is a connected subgraph |
-| **Improve non-optimal results** | When SPF terminates early, PostLinearize can further improve linearization quality |
-| **Optimise sub-chunk ordering** | Even when SPF reports optimal, PostLinearize improves transaction ordering within chunks |
+| **Improve non-optimal results** | When SFP terminates early, PostLinearize can further improve linearization quality |
+| **Optimise sub-chunk ordering** | Even when SFP reports optimal, PostLinearize improves transaction ordering within chunks |
 
-When SPF reports optimal, PostLinearize does not change the chunk decomposition (the feerate
+When SFP reports optimal, PostLinearize does not change the chunk decomposition (the feerate
 diagram is already optimal) — it only improves sub-chunk order (transaction ordering within
 each chunk).
 
-### Sub-chunk ordering matters even when SPF is optimal
+### Sub-chunk ordering matters even when SFP is optimal
 
-SPF reporting optimal means the feerate diagram is already the best possible — the chunk
+SFP reporting optimal means the feerate diagram is already the best possible — the chunk
 decomposition and chunk ordering cannot be improved. But the **arrangement of transactions
 within a chunk** does not affect the feerate diagram. For example, a chunk `{A, B, C}` has
 the same total feerate whether it is internally ordered `[A, B, C]` or `[B, A, C]`, so the
@@ -175,7 +175,7 @@ feerate diagram is identical.
 
 Yet sub-chunk ordering matters in practice:
 
-1. **Determinism**: SPF uses random numbers internally (`rng_seed`), so the same cluster with
+1. **Determinism**: SFP uses random numbers internally (`rng_seed`), so the same cluster with
    different seeds can produce different intra-chunk orderings. PostLinearize is fully
    deterministic — its merge/swap passes converge the randomised output to a canonical form,
    reducing divergence between different nodes.
@@ -191,8 +191,8 @@ Yet sub-chunk ordering matters in practice:
    incremental updates (e.g., when `Relinearize` passes in an `old_linearization`).
 
 `GetLinearization` does sort transactions within each chunk by topology and feerate, but the
-ordering rules it applies are a product of SPF's internal state. PostLinearize provides an
-additional layer of deterministic sub-chunk optimisation that is independent of SPF internals.
+ordering rules it applies are a product of SFP's internal state. PostLinearize provides an
+additional layer of deterministic sub-chunk optimisation that is independent of SFP internals.
 
 ---
 

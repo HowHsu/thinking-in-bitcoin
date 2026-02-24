@@ -174,7 +174,7 @@ Ordinals/BRC-20 盛行期间。
 更有意义的是观察**月度 cluster 总量**的变化：
 
 - **2023 年 1–3 月**：mempool 相对平静，日均约 500 万个 cluster 出现。
-- **2023 年 4–5 月**：**BRC-20 代币**爆发，mempool 严重拥塞，月度 cluster 数量从
+- **2023 年 4–5 月**：（Claude Code 推测：）**BRC-20 代币**爆发，mempool 严重拥塞，月度 cluster 数量从
   7 亿暴涨至 18.6 亿——非链式 cluster（inscription 交易的复杂依赖结构）大量涌入，
   chain% 从 99% 降至 93%。
 - **2023 年 8 月**：cluster 数量达全年峰值（64 亿次），但 chain% 回升至 99.4%。
@@ -182,7 +182,7 @@ Ordinals/BRC-20 盛行期间。
   而非形成复杂的相互依赖。
 - **2023 年 10 月**：mempool 骤然缩小（3.7 亿次，接近年初水平），但 chain%
   仅 96.7%——说明虽然交易量少，但留下来的 cluster 中有更高比例的非链式结构。
-- **2023 年 11–12 月**：第二波拥塞（Ordinals 持续 + Runes 预热），cluster 数量
+- **2023 年 11–12 月**：（Claude Code 推测：）第二波拥塞（Ordinals 持续 + Runes 预热），cluster 数量
   回升至 26–30 亿，chain% 在 96–98% 之间。
 
 ---
