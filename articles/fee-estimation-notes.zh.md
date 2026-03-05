@@ -1,5 +1,7 @@
 # Bitcoin Core 手续费估算机制详解
 
+[English](fee-estimation-notes.en.md)
+
 ## 背景
 
 比特币每个区块有大小限制（约 4MB 权重），矿工打包区块时优先选择费率（feerate，单位 sat/vB）高的交易。用户发交易时需要设置手续费，费率太低会迟迟不被确认，太高则多花钱。

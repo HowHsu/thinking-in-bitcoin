@@ -1,5 +1,7 @@
 # PostLinearize 算法分析
 
+[English](post_linearize.en.md)
+
 ## 算法定位
 
 `PostLinearize` 是 cluster linearization 的后处理步骤，在 `Linearize`（SpanningForestState）之后运行。两者职责不同：
