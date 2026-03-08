@@ -35,9 +35,6 @@ For each API call it:
 1. Writes the opcode and arguments to a binary trace file
 2. Forwards the call to the inner implementation
 
-**Zero intrusion**: no modifications to `txgraph.h` or `txgraph.cpp` — all tracing
-logic lives in separate files.
-
 ### Compile-Time Gating
 
 Controlled by the cmake option `WITH_TXGRAPH_TRACING`, which defaults to OFF:
@@ -50,9 +47,10 @@ When enabled:
 - Compiles `txgraph_tracing.cpp` into `bitcoin_node`
 - Defines the `ENABLE_TXGRAPH_TRACING` preprocessor macro
 - Builds the `txgraph-replay` standalone tool
+- Enables `m_wrapper` support in Ref (see below)
 
-When disabled, there is zero impact on the main codebase — no extra includes, no
-runtime checks.
+When disabled, there is zero impact on the main codebase — macro-guarded code is
+ignored by the compiler, with no runtime overhead.
 
 ### Runtime Activation
 
@@ -79,7 +77,7 @@ All multi-byte integers are little-endian. Opcodes fall into three categories:
 
 | Category | Opcodes | Description |
 |----------|---------|-------------|
-| **Mutation** | ADD_TX, REMOVE_TX, ADD_DEP, SET_FEE | Modify graph state |
+| **Mutation** | ADD_TX, REMOVE_TX, ADD_DEP, SET_FEE, UNLINK_REF | Modify graph state |
 | **Trigger** | GET_BLOCK_BUILDER, DO_WORK, CompareMainOrder, GetAncestors, ... | Entry points that trigger ApplyDependencies |
 | **Staging** | START_STAGING, ABORT_STAGING, COMMIT_STAGING | Staging operations |
 
@@ -91,6 +89,99 @@ ApplyDependencies and are not recorded.
 The wrapper uses `GetRefIndex(ref)` to obtain the stable `GraphIndex` assigned by the
 inner implementation — no address-to-ID mapping table needed.
 This is a protected static method on `TxGraph`, accessible to the decorator subclass.
+
+---
+
+## Core Design Challenge: Intercepting Ref Destruction
+
+### The Problem
+
+The decorator pattern has a fundamental difficulty: **Ref destruction bypasses the wrapper**.
+
+`TracingTxGraph::AddTransaction()` calls `m_impl->AddTransaction(ref, ...)`,
+which sets `ref.m_graph = m_impl` (pointing to the inner implementation, not the wrapper).
+So when a Ref is destroyed:
+
+```
+~Ref()  →  m_graph->UnlinkRef()  →  goes directly into TxGraphImpl
+                                      ↑ bypasses TracingTxGraph!
+```
+
+TracingTxGraph never learns about the Ref destruction and cannot record it in the trace.
+
+### Solution: The m_wrapper Pointer
+
+A conditionally compiled `m_wrapper` pointer is added to the Ref class:
+
+```cpp
+// txgraph.h — inside Ref class
+#ifdef ENABLE_TXGRAPH_TRACING
+    TxGraph* m_wrapper = nullptr;
+#endif
+```
+
+When `TracingTxGraph::AddTransaction()` is called, it sets `ref.m_wrapper = this`.
+Then `~Ref()` checks m_wrapper first:
+
+```cpp
+// txgraph.cpp — ~Ref()
+TxGraph::Ref::~Ref() {
+    if (m_graph) {
+#ifdef ENABLE_TXGRAPH_TRACING
+        if (m_wrapper) {
+            m_wrapper->UnlinkRef(m_index);  // → TracingTxGraph writes UNLINK_REF + forwards
+            m_graph = nullptr;
+            return;
+        }
+#endif
+        m_graph->UnlinkRef(m_index);  // normal path
+        m_graph = nullptr;
+    }
+}
+```
+
+This lets TracingTxGraph intercept every Ref destruction, emit an UNLINK_REF record,
+then forward to the real implementation via `ForwardUnlinkRef`.
+
+### Why ForwardUnlinkRef?
+
+`UnlinkRef` and `UpdateRef` are **protected** methods of TxGraph.
+Although TracingTxGraph inherits from TxGraph and can call its own protected methods,
+C++ does not allow accessing another object's protected methods through a base-class
+pointer (`m_impl`).
+
+The solution is to add two static helper functions to TxGraph (also macro-guarded):
+
+```cpp
+#ifdef ENABLE_TXGRAPH_TRACING
+    static void ForwardUpdateRef(TxGraph& target, GraphIndex index, Ref& new_location) noexcept {
+        target.UpdateRef(index, new_location);
+    }
+    static void ForwardUnlinkRef(TxGraph& target, GraphIndex index) noexcept {
+        target.UnlinkRef(index);
+    }
+#endif
+```
+
+These are member functions of TxGraph itself, so they can access protected methods of
+any TxGraph object.
+
+### REMOVE_TX vs UNLINK_REF
+
+These represent different semantic events:
+
+| Operation | When | Meaning |
+|-----------|------|---------|
+| REMOVE_TX | `RemoveTransaction()` is called | Logically remove the transaction from the graph (but the Ref object is still alive) |
+| UNLINK_REF | `~Ref()` destructor runs | The Ref object is destroyed, freeing its GraphIndex for reuse |
+
+In practice, a transaction's lifecycle is:
+```
+AddTransaction → ... → RemoveTransaction → ... → mapTx.erase → ~Ref → UNLINK_REF
+```
+
+There can be a significant time gap between RemoveTransaction and ~Ref.
+The replay tool needs both timestamps to correctly simulate Ref lifetimes.
 
 ---
 
@@ -107,11 +198,23 @@ TxGraph, and replays every operation:
 **Trigger and Staging operations** are timed with `steady_clock`, with statistics
 accumulated per entry point.
 
-Sample output:
+### Ref Lifetime Management
+
+The replay tool maintains a `refs` map (`GraphIndex → unique_ptr<Ref>`).
+
+- **ADD_TX**: Create a new Ref and insert into the map
+- **REMOVE_TX**: Call `graph->RemoveTransaction()`, but **keep the Ref alive** in the map
+- **UNLINK_REF**: Erase from the map (destroying the Ref → `~Ref()` → `graph->UnlinkRef()`)
+
+Note: the `graph_idx` recorded in UNLINK_REF is the `m_index` at destruction time.
+If a Compact operation occurred between ADD_TX and UNLINK_REF (internal index
+compression), this value may differ from the original ADD_TX key, causing
+`refs.erase()` to miss. In this case the erase is a no-op and the Ref is destroyed
+at program exit — this does not affect the correctness of performance measurements.
+
+### Sample Output
 
 ```
-TxGraph parameters: max_cluster_count=64, max_cluster_size=400000, acceptable_cost=75000
-
 === TxGraph Replay Summary ===
 Total ops replayed: 123456
 
@@ -120,17 +223,13 @@ Mutations (not timed):
   REMOVE_TX:                    12000
   ADD_DEP:                      38000
   SET_FEE:                       2000
+  UNLINK_REF:                   45000
 
 Timed entry points:
   Entry point                       Calls      Total (us)       Avg (us)
   ---                                 ---             ---            ---
   StartStaging                       5000         120000          24.00
   CommitStaging                      5000        1850000         370.00
-  AbortStaging                       1200          28000          23.33
-  GetAncestors                      30000         450000          15.00
-  GetDescendants                    28000         420000          15.00
-  CompareMainOrder                  15000         180000          12.00
-  GetBlockBuilder                      50       12000000      240000.00
   ...
                                       ---             ---
   TOTAL                             84250       15048000
@@ -182,12 +281,16 @@ diff result-A.txt result-B.txt
 
 | File | Purpose |
 |------|---------|
-| `src/txgraph_tracing.h` | TxGraphTraceOp enum + MakeTracingTxGraph declaration |
+| `src/txgraph_tracing.h` | TxGraphTraceOp enum (including UNLINK_REF) + MakeTracingTxGraph declaration |
 | `src/txgraph_tracing.cpp` | TracingTxGraph decorator (~27 virtual methods) |
 | `src/txgraph_replay.cpp` | Standalone replay tool with per-entry-point timing |
-| `src/txmempool.cpp` | 6-line `#ifdef` integration |
+| `src/txgraph.h` | Ref gains `m_wrapper`, TxGraph gains `GetRefWrapper`/`ForwardUnlinkRef`/`ForwardUpdateRef` (macro-guarded) |
+| `src/txgraph.cpp` | `~Ref()` and `Ref(Ref&&)` handle `m_wrapper` (macro-guarded) |
+| `src/txmempool.cpp` | `#ifdef` integration (MakeTracingTxGraph call) |
 | `CMakeLists.txt` | WITH_TXGRAPH_TRACING option |
 | `src/CMakeLists.txt` | Conditional compilation and linking |
+| `contrib/txgraph_tracing/analyze_trace.py` | Python trace analysis script (cluster distribution, chain topology) |
+| `contrib/txgraph_tracing/periodic_gbt.sh` | Helper script for periodic getblocktemplate calls |
 
 ---
 
@@ -207,3 +310,9 @@ readability or maintainability of the core code.
 AddTransaction, RemoveTransaction, etc. are O(1) queue appends. The real work happens
 in the subsequent Trigger operations that invoke ApplyDependencies internally. Timing
 mutations would only introduce noise.
+
+**Why modify txgraph.h/txgraph.cpp?**
+Because Ref.m_graph points to the inner implementation rather than the wrapper,
+~Ref() bypasses TracingTxGraph entirely. Adding m_wrapper to Ref is the cleanest
+way to intercept destruction notifications. All changes are under
+`#ifdef ENABLE_TXGRAPH_TRACING` — zero impact on the compiled binary when disabled.
