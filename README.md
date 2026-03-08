@@ -29,6 +29,19 @@
 - [Bitcoin Core Fuzz 测试实践指南](articles/fuzz-testing.zh.md) · [EN](articles/fuzz-testing.en.md)
 - [一键 Fuzz 脚本使用指南](articles/fuzz-script.zh.md) · [EN](articles/fuzz-script.en.md)
 
+## Mempool & TxGraph 代码导读
+
+- [第 0 篇：架构概览](articles/mempool-txgraph-00-architecture.zh.md) · [EN](articles/mempool-txgraph-00-architecture.en.md)
+- [第 1 篇：CTxMemPoolEntry — 交易在内存池中的表示](articles/mempool-txgraph-01-entry.zh.md) · [EN](articles/mempool-txgraph-01-entry.en.md)
+- [第 2 篇：TxGraph 接口 — 抽象层设计](articles/mempool-txgraph-02-txgraph-interface.zh.md) · [EN](articles/mempool-txgraph-02-txgraph-interface.en.md)
+- [第 3 篇：TxGraphImpl 数据结构 — 内部表示](articles/mempool-txgraph-03-impl-data.zh.md) · [EN](articles/mempool-txgraph-03-impl-data.en.md)
+- [第 4 篇：聚类与线性化 — 核心算法](articles/mempool-txgraph-04-linearization.zh.md) · [EN](articles/mempool-txgraph-04-linearization.en.md)
+- [第 5 篇：Staging — 双图系统](articles/mempool-txgraph-05-staging.zh.md) · [EN](articles/mempool-txgraph-05-staging.en.md)
+- [第 6 篇：CTxMemPool — 内存池核心操作](articles/mempool-txgraph-06-ctxmempool.zh.md) · [EN](articles/mempool-txgraph-06-ctxmempool.en.md)
+- [第 7 篇：交易验证与入池 — ATMP 流程](articles/mempool-txgraph-07-atmp.zh.md) · [EN](articles/mempool-txgraph-07-atmp.en.md)
+- [第 8 篇：区块构建 — 从 Mempool 到区块模板](articles/mempool-txgraph-08-block-building.zh.md) · [EN](articles/mempool-txgraph-08-block-building.en.md)
+- [第 9 篇：测试与调试 — 质量保障](articles/mempool-txgraph-09-testing.zh.md) · [EN](articles/mempool-txgraph-09-testing.en.md)
+
 ## 其他
 
 - [Bitcoin Core的交易费率估算算法](articles/fee-estimation-notes.zh.md) · [EN](articles/fee-estimation-notes.en.md)

@@ -29,6 +29,19 @@
 - [Bitcoin Core Fuzz Testing Practical Guide](articles/fuzz-testing.en.md) · [中文](articles/fuzz-testing.zh.md)
 - [One-Click Fuzz Script Guide](articles/fuzz-script.en.md) · [中文](articles/fuzz-script.zh.md)
 
+## Mempool & TxGraph Code Walkthrough
+
+- [Part 0: Architecture Overview](articles/mempool-txgraph-00-architecture.en.md) · [中文](articles/mempool-txgraph-00-architecture.zh.md)
+- [Part 1: CTxMemPoolEntry — Transaction Representation in the Mempool](articles/mempool-txgraph-01-entry.en.md) · [中文](articles/mempool-txgraph-01-entry.zh.md)
+- [Part 2: TxGraph Interface — Abstraction Layer Design](articles/mempool-txgraph-02-txgraph-interface.en.md) · [中文](articles/mempool-txgraph-02-txgraph-interface.zh.md)
+- [Part 3: TxGraphImpl Data Structures — Internal Representation](articles/mempool-txgraph-03-impl-data.en.md) · [中文](articles/mempool-txgraph-03-impl-data.zh.md)
+- [Part 4: Clustering and Linearization — Core Algorithms](articles/mempool-txgraph-04-linearization.en.md) · [中文](articles/mempool-txgraph-04-linearization.zh.md)
+- [Part 5: Staging — The Dual-Graph System](articles/mempool-txgraph-05-staging.en.md) · [中文](articles/mempool-txgraph-05-staging.zh.md)
+- [Part 6: CTxMemPool — Core Mempool Operations](articles/mempool-txgraph-06-ctxmempool.en.md) · [中文](articles/mempool-txgraph-06-ctxmempool.zh.md)
+- [Part 7: Transaction Validation and Acceptance — The ATMP Flow](articles/mempool-txgraph-07-atmp.en.md) · [中文](articles/mempool-txgraph-07-atmp.zh.md)
+- [Part 8: Block Building — From Mempool to Block Template](articles/mempool-txgraph-08-block-building.en.md) · [中文](articles/mempool-txgraph-08-block-building.zh.md)
+- [Part 9: Testing and Debugging — Quality Assurance](articles/mempool-txgraph-09-testing.en.md) · [中文](articles/mempool-txgraph-09-testing.zh.md)
+
 ## Other
 
 - [Bitcoin Core Fee Estimation Algorithm](articles/fee-estimation-notes.en.md) · [中文](articles/fee-estimation-notes.zh.md)
