@@ -13,6 +13,7 @@
 - [SFP 算法在链式 cluster 上的复杂度分析](articles/spf-chain-complexity.zh.md) · [EN](articles/spf-chain-complexity.en.md)
 - [链式 Cluster 的 O(N) 快速路径优化](articles/chain-cluster-optimization.zh.md) · [EN](articles/chain-cluster-optimization.en.md)
 - [Relinearize 之外的 O(N²) 瓶颈：链式 Cluster 在 TxGraph 中的完整代价](articles/chain-beyond-relinearize.zh.md) · [EN](articles/chain-beyond-relinearize.en.md)
+- [ChainClusterImpl：链形拓扑的优化集群实现](articles/chain-cluster.zh.md) · [EN](articles/chain-cluster.en.md)
 
 ## Mempool 实测数据
 

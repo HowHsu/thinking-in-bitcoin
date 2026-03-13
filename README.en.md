@@ -13,6 +13,7 @@
 - [Complexity Analysis of the SFP Algorithm on Chain Clusters](articles/spf-chain-complexity.en.md) · [中文](articles/spf-chain-complexity.zh.md)
 - [O(N) Fast Path for Chain-Shaped Clusters](articles/chain-cluster-optimization.en.md) · [中文](articles/chain-cluster-optimization.zh.md)
 - [O(N²) Bottlenecks Beyond Relinearize: The Full Cost of Chain Clusters in TxGraph](articles/chain-beyond-relinearize.en.md) · [中文](articles/chain-beyond-relinearize.zh.md)
+- [ChainClusterImpl: Optimised Cluster for Chain-Shaped Topologies](articles/chain-cluster.en.md) · [中文](articles/chain-cluster.zh.md)
 
 ## Mempool Empirical Data
 
