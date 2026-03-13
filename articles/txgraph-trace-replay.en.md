@@ -47,7 +47,7 @@ When enabled:
 - Compiles `txgraph_tracing.cpp` into `bitcoin_node`
 - Defines the `ENABLE_TXGRAPH_TRACING` preprocessor macro
 - Builds the `txgraph-replay` standalone tool
-- Enables `m_wrapper` support in Ref (see below)
+- Enables the `g_txgraph_on_unlink_ref` callback in `~Ref()` (see below)
 
 When disabled, there is zero impact on the main codebase — macro-guarded code is
 ignored by the compiler, with no runtime overhead.
@@ -109,62 +109,35 @@ So when a Ref is destroyed:
 
 TracingTxGraph never learns about the Ref destruction and cannot record it in the trace.
 
-### Solution: The m_wrapper Pointer
+### Solution: The g_txgraph_on_unlink_ref Callback
 
-A conditionally compiled `m_wrapper` pointer is added to the Ref class:
-
-```cpp
-// txgraph.h — inside Ref class
-#ifdef ENABLE_TXGRAPH_TRACING
-    TxGraph* m_wrapper = nullptr;
-#endif
-```
-
-When `TracingTxGraph::AddTransaction()` is called, it sets `ref.m_wrapper = this`.
-Then `~Ref()` checks m_wrapper first:
+Instead of modifying the Ref class, a **global callback function pointer** is used.
+Declared in `txgraph_tracing.h` and defined in `txgraph.cpp`:
 
 ```cpp
+// txgraph_tracing.h
+extern void (*g_txgraph_on_unlink_ref)(uint32_t);
+
 // txgraph.cpp — ~Ref()
 TxGraph::Ref::~Ref() {
     if (m_graph) {
 #ifdef ENABLE_TXGRAPH_TRACING
-        if (m_wrapper) {
-            m_wrapper->UnlinkRef(m_index);  // → TracingTxGraph writes UNLINK_REF + forwards
-            m_graph = nullptr;
-            return;
-        }
+        if (g_txgraph_on_unlink_ref) g_txgraph_on_unlink_ref(m_index);
 #endif
-        m_graph->UnlinkRef(m_index);  // normal path
+        m_graph->UnlinkRef(m_index);
         m_graph = nullptr;
     }
 }
 ```
 
-This lets TracingTxGraph intercept every Ref destruction, emit an UNLINK_REF record,
-then forward to the real implementation via `ForwardUnlinkRef`.
+When `TracingTxGraph` is constructed, it sets `g_txgraph_on_unlink_ref = TraceUnlinkRef`.
+`TraceUnlinkRef` writes the UNLINK_REF opcode and `m_index` to the trace file.
+When the wrapper is destroyed, it clears the callback: `g_txgraph_on_unlink_ref = nullptr`.
 
-### Why ForwardUnlinkRef?
-
-`UnlinkRef` and `UpdateRef` are **protected** methods of TxGraph.
-Although TracingTxGraph inherits from TxGraph and can call its own protected methods,
-C++ does not allow accessing another object's protected methods through a base-class
-pointer (`m_impl`).
-
-The solution is to add two static helper functions to TxGraph (also macro-guarded):
-
-```cpp
-#ifdef ENABLE_TXGRAPH_TRACING
-    static void ForwardUpdateRef(TxGraph& target, GraphIndex index, Ref& new_location) noexcept {
-        target.UpdateRef(index, new_location);
-    }
-    static void ForwardUnlinkRef(TxGraph& target, GraphIndex index) noexcept {
-        target.UnlinkRef(index);
-    }
-#endif
-```
-
-These are member functions of TxGraph itself, so they can access protected methods of
-any TxGraph object.
+**Advantages over a per-Ref `m_wrapper` pointer:**
+- No change to the Ref class — zero memory overhead per Ref when tracing is disabled
+- Ref still calls `m_graph->UnlinkRef()` directly; the callback runs *before* that to record the event
+- No need for `ForwardUnlinkRef` — the real UnlinkRef goes to the inner implementation as usual
 
 ### REMOVE_TX vs UNLINK_REF
 
@@ -281,11 +254,10 @@ diff result-A.txt result-B.txt
 
 | File | Purpose |
 |------|---------|
-| `src/txgraph_tracing.h` | TxGraphTraceOp enum (including UNLINK_REF) + MakeTracingTxGraph declaration |
-| `src/txgraph_tracing.cpp` | TracingTxGraph decorator (~27 virtual methods) |
+| `src/txgraph_tracing.h` | TxGraphTraceOp enum (including UNLINK_REF) + `g_txgraph_on_unlink_ref` declaration + MakeTracingTxGraph |
+| `src/txgraph_tracing.cpp` | TracingTxGraph decorator (~27 virtual methods), TraceUnlinkRef, sets/clears callback |
 | `src/txgraph_replay.cpp` | Standalone replay tool with per-entry-point timing |
-| `src/txgraph.h` | Ref gains `m_wrapper`, TxGraph gains `GetRefWrapper`/`ForwardUnlinkRef`/`ForwardUpdateRef` (macro-guarded) |
-| `src/txgraph.cpp` | `~Ref()` and `Ref(Ref&&)` handle `m_wrapper` (macro-guarded) |
+| `src/txgraph.cpp` | `~Ref()` invokes `g_txgraph_on_unlink_ref` before UnlinkRef (macro-guarded) |
 | `src/txmempool.cpp` | `#ifdef` integration (MakeTracingTxGraph call) |
 | `CMakeLists.txt` | WITH_TXGRAPH_TRACING option |
 | `src/CMakeLists.txt` | Conditional compilation and linking |
@@ -311,8 +283,8 @@ AddTransaction, RemoveTransaction, etc. are O(1) queue appends. The real work ha
 in the subsequent Trigger operations that invoke ApplyDependencies internally. Timing
 mutations would only introduce noise.
 
-**Why modify txgraph.h/txgraph.cpp?**
+**Why modify txgraph.cpp?**
 Because Ref.m_graph points to the inner implementation rather than the wrapper,
-~Ref() bypasses TracingTxGraph entirely. Adding m_wrapper to Ref is the cleanest
-way to intercept destruction notifications. All changes are under
-`#ifdef ENABLE_TXGRAPH_TRACING` — zero impact on the compiled binary when disabled.
+~Ref() bypasses TracingTxGraph entirely. A global callback (`g_txgraph_on_unlink_ref`)
+is invoked before UnlinkRef to record the event — no Ref modification needed.
+All changes are under `#ifdef ENABLE_TXGRAPH_TRACING` — zero impact when disabled.

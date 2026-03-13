@@ -45,7 +45,7 @@ option(WITH_TXGRAPH_TRACING "Enable TxGraph binary trace recording and replay to
 - 编译 `txgraph_tracing.cpp` 到 `bitcoin_node`
 - 定义 `ENABLE_TXGRAPH_TRACING` 预处理宏
 - 构建 `txgraph-replay` 独立工具
-- 在 `txgraph.h` 和 `txgraph.cpp` 中启用 Ref 的 `m_wrapper` 支持（见下文）
+- 在 `~Ref()` 中启用 `g_txgraph_on_unlink_ref` 回调（见下文）
 
 未开启时，对主代码完全无影响——宏控代码被编译器忽略，无运行时开销。
 
@@ -102,60 +102,35 @@ ADD_TX:  0x01 [uint32 graph_idx][int64 fee][int32 size]
 
 TracingTxGraph 完全不知道 Ref 被销毁了，无法在 trace 中记录这个事件。
 
-### 解决方案：m_wrapper 指针
+### 解决方案：g_txgraph_on_unlink_ref 回调
 
-在 Ref 类中加一个条件编译的 `m_wrapper` 指针：
-
-```cpp
-// txgraph.h — Ref 类内部
-#ifdef ENABLE_TXGRAPH_TRACING
-    TxGraph* m_wrapper = nullptr;
-#endif
-```
-
-当 `TracingTxGraph::AddTransaction()` 被调用时，设置 `ref.m_wrapper = this`。
-然后 `~Ref()` 优先检查 m_wrapper：
+不修改 Ref 类，而是使用**全局回调函数指针**。
+在 `txgraph_tracing.h` 声明，在 `txgraph.cpp` 中通过宏控使用：
 
 ```cpp
+// txgraph_tracing.h
+extern void (*g_txgraph_on_unlink_ref)(uint32_t);
+
 // txgraph.cpp — ~Ref()
 TxGraph::Ref::~Ref() {
     if (m_graph) {
 #ifdef ENABLE_TXGRAPH_TRACING
-        if (m_wrapper) {
-            m_wrapper->UnlinkRef(m_index);  // → TracingTxGraph 写 UNLINK_REF + 转发
-            m_graph = nullptr;
-            return;
-        }
+        if (g_txgraph_on_unlink_ref) g_txgraph_on_unlink_ref(m_index);
 #endif
-        m_graph->UnlinkRef(m_index);  // 普通路径
+        m_graph->UnlinkRef(m_index);
         m_graph = nullptr;
     }
 }
 ```
 
-这样 TracingTxGraph 能拦截所有 Ref 析构，发出 UNLINK_REF 记录，
-然后通过 `ForwardUnlinkRef` 转发给真正的实现。
+`TracingTxGraph` 构造时设置 `g_txgraph_on_unlink_ref = TraceUnlinkRef`。
+`TraceUnlinkRef` 将 UNLINK_REF 操作码和 `m_index` 写入 trace 文件。
+wrapper 析构时清除回调：`g_txgraph_on_unlink_ref = nullptr`。
 
-### 为什么需要 ForwardUnlinkRef？
-
-`UnlinkRef` 和 `UpdateRef` 是 TxGraph 的 **protected** 方法。
-虽然 TracingTxGraph 继承了 TxGraph，可以调用自己的 protected 方法，
-但 C++ 不允许通过基类指针（`m_impl`）访问另一个对象的 protected 方法。
-
-解决方法是在 TxGraph 中加两个 static 辅助函数（同样宏控）：
-
-```cpp
-#ifdef ENABLE_TXGRAPH_TRACING
-    static void ForwardUpdateRef(TxGraph& target, GraphIndex index, Ref& new_location) noexcept {
-        target.UpdateRef(index, new_location);
-    }
-    static void ForwardUnlinkRef(TxGraph& target, GraphIndex index) noexcept {
-        target.UnlinkRef(index);
-    }
-#endif
-```
-
-这些是 TxGraph 自身的成员函数，所以可以访问任意 TxGraph 对象的 protected 方法。
+**相比 per-Ref 的 m_wrapper 指针的优势：**
+- 无需修改 Ref 类——tracing 关闭时每个 Ref 零额外内存
+- Ref 仍直接调用 `m_graph->UnlinkRef()`；回调在其之前执行以记录事件
+- 不需要 `ForwardUnlinkRef`——真正的 UnlinkRef 照常进入内部实现
 
 ### REMOVE_TX vs UNLINK_REF
 
@@ -268,11 +243,10 @@ diff result-A.txt result-B.txt
 
 | 文件 | 作用 |
 |------|------|
-| `src/txgraph_tracing.h` | TxGraphTraceOp 枚举（含 UNLINK_REF）+ MakeTracingTxGraph 声明 |
-| `src/txgraph_tracing.cpp` | TracingTxGraph 装饰器实现（~27 个虚方法） |
+| `src/txgraph_tracing.h` | TxGraphTraceOp 枚举（含 UNLINK_REF）+ `g_txgraph_on_unlink_ref` 声明 + MakeTracingTxGraph |
+| `src/txgraph_tracing.cpp` | TracingTxGraph 装饰器（~27 虚方法）、TraceUnlinkRef、设置/清除回调 |
 | `src/txgraph_replay.cpp` | 独立回放工具，按入口点计时统计 |
-| `src/txgraph.h` | Ref 加 `m_wrapper`，TxGraph 加 `GetRefWrapper`/`ForwardUnlinkRef`/`ForwardUpdateRef`（宏控） |
-| `src/txgraph.cpp` | `~Ref()` 和 `Ref(Ref&&)` 中处理 `m_wrapper`（宏控） |
+| `src/txgraph.cpp` | `~Ref()` 中在 UnlinkRef 前调用 `g_txgraph_on_unlink_ref`（宏控） |
 | `src/txmempool.cpp` | `#ifdef` 集成代码（MakeTracingTxGraph 调用） |
 | `CMakeLists.txt` | WITH_TXGRAPH_TRACING 选项 |
 | `src/CMakeLists.txt` | 条件编译和链接 |
@@ -296,7 +270,7 @@ AddTransaction、RemoveTransaction 等操作本身是 O(1) 的队列追加，
 真正的工作发生在后续 Trigger 操作中触发的 ApplyDependencies。
 对 Mutation 计时只会引入噪声。
 
-**为什么需要修改 txgraph.h/txgraph.cpp？**
+**为什么需要修改 txgraph.cpp？**
 由于 Ref.m_graph 指向内部实现而非 wrapper，~Ref() 会绕过 TracingTxGraph。
-在 Ref 中加入 m_wrapper 指针是拦截析构通知的最干净方案。
+使用全局回调 `g_txgraph_on_unlink_ref` 在 UnlinkRef 之前记录事件——无需修改 Ref。
 所有修改均在 `#ifdef ENABLE_TXGRAPH_TRACING` 宏控下，未开启时对编译产物零影响。
