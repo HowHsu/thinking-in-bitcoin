@@ -14,17 +14,15 @@
 - [O(N) Fast Path for Chain-Shaped Clusters](articles/chain-cluster-optimization.en.md) · [中文](articles/chain-cluster-optimization.zh.md)
 - [O(N²) Bottlenecks Beyond Relinearize: The Full Cost of Chain Clusters in TxGraph](articles/chain-beyond-relinearize.en.md) · [中文](articles/chain-beyond-relinearize.zh.md)
 - [ChainClusterImpl: Optimised Cluster for Chain-Shaped Topologies](articles/chain-cluster.en.md) · [中文](articles/chain-cluster.zh.md)
+- [Replay Benchmark: TryLinearizeChain on Real Mempool Data](articles/chain-fast-path-replay-bench.en.md) · [中文](articles/chain-fast-path-replay-bench.zh.md)
+- [TxGraph Trace & Replay: Reproducible Performance Comparison Tool](articles/txgraph-trace-replay.en.md) · [中文](articles/txgraph-trace-replay.zh.md)
+- [ChainCluster Memory Comparison: RSS, Massif, GetMainMemoryUsage](articles/chain-cluster-memory.en.md) · [中文](articles/chain-cluster-memory.zh.md)
+- [ChainCluster No-Large-Chain Trace Baseline](articles/chain-cluster-nochain-baseline.en.md) · [中文](articles/chain-cluster-nochain-baseline.zh.md)
 
 ## Mempool Empirical Data
 
 - [Full-Year 2023 Mempool Measurement: Cluster Size and Topology Distribution](articles/mempool-cluster-distribution-2023.en.md) · [中文](articles/mempool-cluster-distribution-2023.zh.md)
 - [2025 Mempool Measurement: Cluster Size and Topology Distribution](articles/mempool-cluster-distribution-2025.en.md) · [中文](articles/mempool-cluster-distribution-2025.zh.md)
-
-## Benchmarking & Tools
-
-- [Replay Benchmark: TryLinearizeChain on Real Mempool Data](articles/chain-fast-path-replay-bench.en.md) · [中文](articles/chain-fast-path-replay-bench.zh.md)
-- [TxGraph Trace & Replay: Reproducible Performance Comparison Tool](articles/txgraph-trace-replay.en.md) · [中文](articles/txgraph-trace-replay.zh.md)
-- [ChainCluster Memory Comparison: RSS, Massif, GetMainMemoryUsage](articles/chain-cluster-memory.en.md) · [中文](articles/chain-cluster-memory.zh.md)
 
 ## Testing
 

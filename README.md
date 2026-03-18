@@ -14,17 +14,15 @@
 - [链式 Cluster 的 O(N) 快速路径优化](articles/chain-cluster-optimization.zh.md) · [EN](articles/chain-cluster-optimization.en.md)
 - [Relinearize 之外的 O(N²) 瓶颈：链式 Cluster 在 TxGraph 中的完整代价](articles/chain-beyond-relinearize.zh.md) · [EN](articles/chain-beyond-relinearize.en.md)
 - [ChainClusterImpl：链形拓扑的优化集群实现](articles/chain-cluster.zh.md) · [EN](articles/chain-cluster.en.md)
+- [重放 Benchmark：TryLinearizeChain 在真实 Mempool 数据上的效果](articles/chain-fast-path-replay-bench.zh.md) · [EN](articles/chain-fast-path-replay-bench.en.md)
 - [TxGraph Trace & Replay：可复现的性能对比工具](articles/txgraph-trace-replay.zh.md) · [EN](articles/txgraph-trace-replay.en.md)
 - [ChainCluster 内存对比：RSS、Massif、GetMainMemoryUsage 三种测量](articles/chain-cluster-memory.zh.md) · [EN](articles/chain-cluster-memory.en.md)
+- [ChainCluster 无大链 Trace 基线](articles/chain-cluster-nochain-baseline.zh.md) · [EN](articles/chain-cluster-nochain-baseline.en.md)
 
 ## Mempool 实测数据
 
 - [2023 年全年 Mempool 实测：Cluster 大小与拓扑分布](articles/mempool-cluster-distribution-2023.zh.md) · [EN](articles/mempool-cluster-distribution-2023.en.md)
 - [2025 年 Mempool 实测：Cluster 大小与拓扑分布](articles/mempool-cluster-distribution-2025.zh.md) · [EN](articles/mempool-cluster-distribution-2025.en.md)
-
-## 基准测试与工具
-
-- [重放 Benchmark：TryLinearizeChain 在真实 Mempool 数据上的效果](articles/chain-fast-path-replay-bench.zh.md) · [EN](articles/chain-fast-path-replay-bench.en.md)
 
 ## 测试
 

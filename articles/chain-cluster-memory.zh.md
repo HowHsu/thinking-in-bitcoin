@@ -10,6 +10,8 @@
 
 **Trace 文件：** `txgraph.trace.4.5days.final`（约 552 MB，4.5 天 mempool 活动）
 
+**对比脚本：** [bitcoin/bitcoin `chaincluster_time_mem_bench` 分支](https://github.com/bitcoin/bitcoin/tree/chaincluster_time_mem_bench)
+
 ---
 
 ## 1. RSS（常驻集大小）
@@ -112,3 +114,5 @@
 | GetMainMemoryUsage 峰值 | 约 8.3% |
 | GetMainMemoryUsage 最终 | 约 3.2% |
 | GetMainMemoryUsage 平均 | 约 6.5% |
+
+三种方法均显示 chaincluster 分支降低了内存占用，与链式 cluster（规模 ≥2）每笔交易 20 字节的理论节省一致。

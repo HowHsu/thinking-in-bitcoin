@@ -10,6 +10,8 @@ This article compares memory usage between the `before_chaincluster` and `chainc
 
 **Trace file:** `txgraph.trace.4.5days.final` (~552 MB, 4.5 days of mempool activity)
 
+**Comparison script:** [bitcoin/bitcoin `chaincluster_time_mem_bench` branch](https://github.com/bitcoin/bitcoin/tree/chaincluster_time_mem_bench)
+
 ---
 
 ## 1. RSS (Resident Set Size)
@@ -112,3 +114,5 @@ Peak occurs mid-trace (commit ~1.29M of 1.76M), not at the end.
 | GetMainMemoryUsage peak | ~8.3% |
 | GetMainMemoryUsage final | ~3.2% |
 | GetMainMemoryUsage average | ~6.5% |
+
+All three methods show that the chaincluster branch reduces memory usage. The results align with the theoretical per-cluster savings of 20 bytes per transaction in chain-shaped clusters (size ≥2).
