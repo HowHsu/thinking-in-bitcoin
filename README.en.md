@@ -24,6 +24,7 @@
 
 - [Replay Benchmark: TryLinearizeChain on Real Mempool Data](articles/chain-fast-path-replay-bench.en.md) · [中文](articles/chain-fast-path-replay-bench.zh.md)
 - [TxGraph Trace & Replay: Reproducible Performance Comparison Tool](articles/txgraph-trace-replay.en.md) · [中文](articles/txgraph-trace-replay.zh.md)
+- [ChainCluster Memory Comparison: RSS, Massif, GetMainMemoryUsage](articles/chain-cluster-memory.en.md) · [中文](articles/chain-cluster-memory.zh.md)
 
 ## Testing
 
