@@ -169,8 +169,6 @@ The above results were obtained on the test machine.
 
 | Item | Value |
 |------|-------|
-| Container ID | `acad37791c08` |
-| Image | `bitcoin:latest` |
 | Base OS | Debian 12 (bookworm) |
 | GCC | 12.2.0 |
 | CMake | 3.25.1 |

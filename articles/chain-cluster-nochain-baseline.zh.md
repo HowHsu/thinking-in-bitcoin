@@ -169,8 +169,6 @@ DoWork、CommitStaging、IsOversized 等路径上均有明显加速。
 
 | 项目 | 值 |
 |------|-----|
-| 容器 ID | `acad37791c08` |
-| 镜像 | `bitcoin:latest` |
 | 基础系统 | Debian 12 (bookworm) |
 | GCC | 12.2.0 |
 | CMake | 3.25.1 |

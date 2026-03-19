@@ -18,6 +18,7 @@
 - [TxGraph Trace & Replay：可复现的性能对比工具](articles/txgraph-trace-replay.zh.md) · [EN](articles/txgraph-trace-replay.en.md)
 - [ChainCluster 内存对比：RSS、Massif、GetMainMemoryUsage 三种测量](articles/chain-cluster-memory.zh.md) · [EN](articles/chain-cluster-memory.en.md)
 - [ChainCluster 无大链 Trace 基线](articles/chain-cluster-nochain-baseline.zh.md) · [EN](articles/chain-cluster-nochain-baseline.en.md)
+- [ChainLinearize vs ChainCluster：原始 Trace 对比](articles/chain-linearize-vs-chaincluster.zh.md) · [EN](articles/chain-linearize-vs-chaincluster.en.md)
 
 ## Mempool 实测数据
 
