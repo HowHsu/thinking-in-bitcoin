@@ -19,6 +19,7 @@
 - [ChainCluster 内存对比：RSS、Massif、GetMainMemoryUsage 三种测量](articles/chain-cluster-memory.zh.md) · [EN](articles/chain-cluster-memory.en.md)
 - [ChainCluster 无大链 Trace 基线](articles/chain-cluster-nochain-baseline.zh.md) · [EN](articles/chain-cluster-nochain-baseline.en.md)
 - [ChainLinearize vs ChainCluster：原始 Trace 对比](articles/chain-linearize-vs-chaincluster.zh.md) · [EN](articles/chain-linearize-vs-chaincluster.en.md)
+- [ChainClusterImpl 的 IsOversized 开销：Chunk Computation 的时机问题](articles/chain-isoversized-chunk-overhead.zh.md) · [EN](articles/chain-isoversized-chunk-overhead.en.md)
 
 ## Mempool 实测数据
 

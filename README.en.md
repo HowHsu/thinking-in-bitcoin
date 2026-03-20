@@ -19,6 +19,7 @@
 - [ChainCluster Memory Comparison: RSS, Massif, GetMainMemoryUsage](articles/chain-cluster-memory.en.md) · [中文](articles/chain-cluster-memory.zh.md)
 - [ChainCluster No-Large-Chain Trace Baseline](articles/chain-cluster-nochain-baseline.en.md) · [中文](articles/chain-cluster-nochain-baseline.zh.md)
 - [ChainLinearize vs ChainCluster: Original Trace Comparison](articles/chain-linearize-vs-chaincluster.en.md) · [中文](articles/chain-linearize-vs-chaincluster.zh.md)
+- [ChainClusterImpl's IsOversized Overhead: The Chunk Computation Timing Problem](articles/chain-isoversized-chunk-overhead.en.md) · [中文](articles/chain-isoversized-chunk-overhead.zh.md)
 
 ## Mempool Empirical Data
 
