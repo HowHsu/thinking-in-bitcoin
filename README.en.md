@@ -44,6 +44,10 @@
 - [Part 8: Block Building — From Mempool to Block Template](articles/mempool-txgraph-08-block-building.en.md) · [中文](articles/mempool-txgraph-08-block-building.zh.md)
 - [Part 9: Testing and Debugging — Quality Assurance](articles/mempool-txgraph-09-testing.en.md) · [中文](articles/mempool-txgraph-09-testing.zh.md)
 
+## Consensus & Activation
+
+- [Bitcoin Soft Fork Activation: From BIP9 Signaling to BuriedDeployment](articles/soft-fork-activation.en.md) · [中文](articles/soft-fork-activation.zh.md)
+
 ## Other
 
 - [Bitcoin Core Fee Estimation Algorithm](articles/fee-estimation-notes.en.md) · [中文](articles/fee-estimation-notes.zh.md)

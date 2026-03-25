@@ -44,6 +44,10 @@
 - [第 8 篇：区块构建 — 从 Mempool 到区块模板](articles/mempool-txgraph-08-block-building.zh.md) · [EN](articles/mempool-txgraph-08-block-building.en.md)
 - [第 9 篇：测试与调试 — 质量保障](articles/mempool-txgraph-09-testing.zh.md) · [EN](articles/mempool-txgraph-09-testing.en.md)
 
+## 共识与激活
+
+- [Bitcoin 软分叉激活机制：从 BIP9 投票到 BuriedDeployment](articles/soft-fork-activation.zh.md) · [EN](articles/soft-fork-activation.en.md)
+
 ## 其他
 
 - [Bitcoin Core的交易费率估算算法](articles/fee-estimation-notes.zh.md) · [EN](articles/fee-estimation-notes.en.md)
