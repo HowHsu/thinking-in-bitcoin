@@ -44,6 +44,12 @@
 - [第 8 篇：区块构建 — 从 Mempool 到区块模板](articles/mempool-txgraph-08-block-building.zh.md) · [EN](articles/mempool-txgraph-08-block-building.en.md)
 - [第 9 篇：测试与调试 — 质量保障](articles/mempool-txgraph-09-testing.zh.md) · [EN](articles/mempool-txgraph-09-testing.en.md)
 
+## 存储与索引
+
+- [PR #34897 解析：索引不应提交到超过 chainstate flush 位置的区块](articles/index-flush-pr34897.zh.md) · [EN](articles/index-flush-pr34897.en.md)
+- [Bitcoin Core 数据持久化：Flush 时机与顺序](articles/index-flush-ordering.zh.md) · [EN](articles/index-flush-ordering.en.md)
+- [Bitcoin Core 磁盘存储布局：数据分类与关联](articles/disk-storage-layout.zh.md) · [EN](articles/disk-storage-layout.en.md)
+
 ## 共识与激活
 
 - [Bitcoin 软分叉激活机制：从 BIP9 投票到 BuriedDeployment](articles/soft-fork-activation.zh.md) · [EN](articles/soft-fork-activation.en.md)

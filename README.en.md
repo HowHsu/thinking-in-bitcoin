@@ -44,6 +44,12 @@
 - [Part 8: Block Building — From Mempool to Block Template](articles/mempool-txgraph-08-block-building.en.md) · [中文](articles/mempool-txgraph-08-block-building.zh.md)
 - [Part 9: Testing and Debugging — Quality Assurance](articles/mempool-txgraph-09-testing.en.md) · [中文](articles/mempool-txgraph-09-testing.zh.md)
 
+## Storage & Indexes
+
+- [PR #34897: Indexes Must Not Commit Ahead of the Flushed Chainstate](articles/index-flush-pr34897.en.md) · [中文](articles/index-flush-pr34897.zh.md)
+- [Bitcoin Core Data Persistence: Flush Timing and Ordering](articles/index-flush-ordering.en.md) · [中文](articles/index-flush-ordering.zh.md)
+- [Bitcoin Core Disk Storage Layout: Data Classification and Relationships](articles/disk-storage-layout.en.md) · [中文](articles/disk-storage-layout.zh.md)
+
 ## Consensus & Activation
 
 - [Bitcoin Soft Fork Activation: From BIP9 Signaling to BuriedDeployment](articles/soft-fork-activation.en.md) · [中文](articles/soft-fork-activation.zh.md)
