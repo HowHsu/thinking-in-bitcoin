@@ -49,6 +49,7 @@
 - [PR #34897 解析：索引不应提交到超过 chainstate flush 位置的区块](articles/index-flush-pr34897.zh.md) · [EN](articles/index-flush-pr34897.en.md)
 - [Bitcoin Core 数据持久化：Flush 时机与顺序](articles/index-flush-ordering.zh.md) · [EN](articles/index-flush-ordering.en.md)
 - [Bitcoin Core 磁盘存储布局：数据分类与关联](articles/disk-storage-layout.zh.md) · [EN](articles/disk-storage-layout.en.md)
+- [Bitcoin Core 存储架构全景图](articles/storage-architecture-ascii.zh.md) · [EN](articles/storage-architecture-ascii.en.md)
 
 ## 共识与激活
 

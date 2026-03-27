@@ -49,6 +49,7 @@
 - [PR #34897: Indexes Must Not Commit Ahead of the Flushed Chainstate](articles/index-flush-pr34897.en.md) · [中文](articles/index-flush-pr34897.zh.md)
 - [Bitcoin Core Data Persistence: Flush Timing and Ordering](articles/index-flush-ordering.en.md) · [中文](articles/index-flush-ordering.zh.md)
 - [Bitcoin Core Disk Storage Layout: Data Classification and Relationships](articles/disk-storage-layout.en.md) · [中文](articles/disk-storage-layout.zh.md)
+- [Bitcoin Core Storage Architecture: Complete ASCII Reference](articles/storage-architecture-ascii.en.md) · [中文](articles/storage-architecture-ascii.zh.md)
 
 ## Consensus & Activation
 
