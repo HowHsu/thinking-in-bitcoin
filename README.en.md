@@ -55,6 +55,10 @@
 
 - [Bitcoin Soft Fork Activation: From BIP9 Signaling to BuriedDeployment](articles/soft-fork-activation.en.md) · [中文](articles/soft-fork-activation.zh.md)
 
+## USDT Tracing
+
+- [Bitcoin Core USDT Tracing: Internals and Implementation](articles/usdt-tracing.en.md) · [中文](articles/usdt-tracing.zh.md)
+
 ## Other
 
 - [Bitcoin Core Fee Estimation Algorithm](articles/fee-estimation-notes.en.md) · [中文](articles/fee-estimation-notes.zh.md)

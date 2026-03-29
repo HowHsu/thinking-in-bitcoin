@@ -55,6 +55,10 @@
 
 - [Bitcoin 软分叉激活机制：从 BIP9 投票到 BuriedDeployment](articles/soft-fork-activation.zh.md) · [EN](articles/soft-fork-activation.en.md)
 
+## USDT Tracing
+
+- [Bitcoin Core USDT Tracing：原理与实现](articles/usdt-tracing.zh.md) · [EN](articles/usdt-tracing.en.md)
+
 ## 其他
 
 - [Bitcoin Core的交易费率估算算法](articles/fee-estimation-notes.zh.md) · [EN](articles/fee-estimation-notes.en.md)
