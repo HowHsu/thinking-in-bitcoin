@@ -58,6 +58,7 @@
 ## USDT Tracing
 
 - [Bitcoin Core USDT Tracing：原理与实现](articles/usdt-tracing.zh.md) · [EN](articles/usdt-tracing.en.md)
+- [基于 USDT 的 TxGraph 追踪管线：录制、分析与回放](articles/txgraph-usdt-tracing.zh.md) · [EN](articles/txgraph-usdt-tracing.en.md)
 
 ## 其他
 

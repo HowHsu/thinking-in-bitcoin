@@ -58,6 +58,7 @@
 ## USDT Tracing
 
 - [Bitcoin Core USDT Tracing: Internals and Implementation](articles/usdt-tracing.en.md) · [中文](articles/usdt-tracing.zh.md)
+- [USDT-Based TxGraph Tracing Pipeline: Record, Analyze, and Replay](articles/txgraph-usdt-tracing.en.md) · [中文](articles/txgraph-usdt-tracing.zh.md)
 
 ## Other
 
